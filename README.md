@@ -14,9 +14,7 @@ Die Basis-Idee stammt von dem <a href="https://storming-gates.de/showthread.php?
 - Der <a href="https://www.mybb.de/erweiterungen/18x/plugins-verschiedenes/enhanced-account-switcher/" target="_blank">Accountswitcher</a> von doylecc <b>muss</b> installiert sein. 
 - Das <a href="https://github.com/frostschutz/MyBB-Patches" target="_blank">Patches-Plugin</a> von frostschutz <b>muss</b> installiert sein. 
 
-
 # Datenbank-Änderungen
-
 ### Hinzugefügte Tabelle: 
 - PRÄFIX_players
 
@@ -38,15 +36,32 @@ Als Teil des Plugins werden automatisch neue Patches installiert. Alle Patches, 
 - deutsch_du/admin/playeroverview.lang.php
 
 # Einstellungen
+- Spieler-Übersicht aktivieren / deaktivieren
+- Spieler-Übersicht für Gäste aktivieren / deaktivieren
+- Onlinestatus der Spieler in der Spieler-Übersicht anzeigen
+- Abwesenheit der Spieler in der Spieler-Übersicht anzeigen
+- Avatar der Spieler anzeigen
+- Angabe des Default-Spieler-Avatars, falls ein Spieler das Feld leer lässt
+- Spieler-Avatar Höhe
+- Spieler-Avatar Breite
+- Alle Charaktere des Spielers in der Übersicht anzeigen
+- Avatar der angehängten Charaktere anzeigen
+- Angabe des Default-Charakter-Avatars, falls das Avatar-Feld bei einem Charakter leer ist
+- Charakter-Avatar Höhe
+- Charakter-Avatar Breite
 
 # Neue Templates
-### - playeroverview - 
+Alle neuen Templates sind in der Template-Gruppe "Player Overview Templates" zu finden. Die Aufteilung hier ist danach, in welchem Bereich sie dann aufgerufen werden.
+
+### - playeroverview (misc) - 
 - playeroverview									
 - playeroverview_playerbit						
-- playeroverview_playerbit_avatar					
+- playeroverview_playerbit_avatar
+- playeroverview_playerbit_away					
 - playeroverview_playerbit_characters				
 - playeroverview_playerbit_characters_bit			
-- playeroverview_playerbit_characters_bit_avatar	
+- playeroverview_playerbit_characters_bit_avatar
+- playeroverview_playerbit_onlinestatus	
 	
 ### - user_cp - 	
 - playeroverview_ucp								
@@ -59,7 +74,8 @@ Als Teil des Plugins werden automatisch neue Patches installiert. Alle Patches, 
 - playeroverview_profile_characters_bit			
 - playeroverview_profile_characters_bit_avatar	
 
-Die Templates sind für jedes Theme unter der Templategruppe "Player Overview Templates" zu finden.
+### - header - 
+- playeroverview_menu 
 
 # Template Änderungen
 ### - member_profile - 
@@ -69,8 +85,11 @@ Die Templates sind für jedes Theme unter der Templategruppe "Player Overview Te
 ### - user_cp - 
 - {$playeroverview_ucp} eingefügt
 
+### - header - 
+- {$playeroverview_menu}
+
 # Neue CSS
-- playeroverview_container
+- playeroverview.css
 
 # Neue Links
 - deine-webseite.ch/misc.php?action=playeroverview
