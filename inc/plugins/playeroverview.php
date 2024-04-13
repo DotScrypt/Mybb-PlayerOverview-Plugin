@@ -718,7 +718,7 @@ function playeroverview_templates_add()
     $db->insert_query('templates', $insert_array);
 
 
-     /************************** TEMPLATES FOR MENU LINK **************************/
+    /************************** TEMPLATES FOR MENU LINK **************************/
 
     //playeroverview_menu
     $template_playeroverview_menu = '<li>
@@ -811,25 +811,13 @@ function misc_playeroverview()
 
             } elseif ($playeroverview_avatar == 1) {
                 //show avatar of player
+                $playeravavalues = playeroverview_set_playeravatar($player);
 
-                $avaheader = '<td class="tcat"><span class="smalltext"><strong>' . $lang->playeroverview_avatar_title . '</strong></span></td>';
-                $playeravatar = htmlspecialchars_uni($player['avatar_link']);
-                $playeravatar_image_html = '<img src="' . $playeravatar . '" alt="Spieler-Avatar" width="' . $playeroverview_avatar_width . '" height="' . $playeroverview_avatar_height . '" />';
+                $avaheader = $playeravavalues['avaheader'];
+                $playeravatar = $playeravavalues['playeravatar'];
+                $playeravatar_image_html = $playeravavalues['playeravatar_image_html'];
+                $playeravalink = $playeravavalues['playeravalink'];
 
-                if (empty($player['avatar_link']) || $mybb->user['uid'] == 0) {
-
-                    //if no avatar is given by the user, show the default avatar - but only if there is a default avatar given in the settings
-                    if (!empty($playeroverview_avatar_default)) {
-                        $playeravatar = playeroverview_validate_standard_avatar($playeroverview_avatar_default);
-                        $playeravatar_image_html = '<img src="' . $playeravatar . '" alt="Spieler-Avatar" width="' . $playeroverview_avatar_width . '" height="' . $playeroverview_avatar_height . '" />';
-                    } else {
-                        $playeravatar = "";
-                        $playeravatar_image_html = $lang->playeroverview_noava;
-                    }
-                }
-                if (!empty($playeravatar)) {
-                    $playeravatar_image_html = '<img src="' . $playeravatar . '" alt="Spieler-Avatar" width="' . $playeroverview_avatar_width . '" height="' . $playeroverview_avatar_height . '" />';
-                }
                 eval ("\$playeroverview_playerbit_avatar = \"" . $templates->get("playeroverview_playerbit_avatar") . "\";");
 
             }
@@ -854,11 +842,10 @@ function misc_playeroverview()
                 $playeroverview_playerbit_characters_bit = "";
 
                 while ($character = $db->fetch_array($characters)) {
-
-                    //ensure correct username link
-                    $charaname = htmlspecialchars_uni($character['username']);
-                    $charaavatar = "";
-                    $charalink = build_profile_link(format_name($charaname, $character['usergroup'], $character['displaygroup']), (int) $character['uid']);
+                     //ensure correct username link
+                     $charaname = htmlspecialchars_uni($character['username']);
+                     $charaavatar = "";
+                     $charalink = build_profile_link(format_name($charaname, $character['usergroup'], $character['displaygroup']), (int) $character['uid']);
 
                     //SETTINGS: character avatars only if setting allows
                     if ($playeroverview_characters_avatar != 1) {
@@ -867,14 +854,8 @@ function misc_playeroverview()
 
                     } elseif ($playeroverview_characters_avatar == 1) {
 
-                        //show avatar of character
-                        $charaavatar = $character['avatar'];
-                        if (empty($character['avatar']) || $mybb->user['uid'] == 0) {
-                            //if no avatar is given by the user, show the default avatar - but only if there is a default avatar given in the settings
-                            if (!empty($playeroverview_characters_avatar_default)) {
-                                $charaavatar = playeroverview_validate_standard_avatar($playeroverview_characters_avatar_default);
-                            }
-                        }
+                        $charaavatar = playeroverview_set_charaavatar($character);
+                      
                         if (!empty($charaavatar)) {
                             eval ("\$playeroverview_playerbit_characters_bit_avatar = \"" . $templates->get("playeroverview_playerbit_characters_bit_avatar") . "\";");
                         } else {
@@ -972,24 +953,14 @@ function playeroverview_show_profile()
 
         } elseif ($playeroverview_avatar == 1) {
             //show avatar of player
-            $avaheader = '<td class="tcat"><span class="smalltext"><strong>' . $lang->playeroverview_avatar_title . '</strong></span></td>';
-            $playeravatar = htmlspecialchars_uni($player['avatar_link']);
-            $playeravatar_image_html = '<img src="' . $playeravatar . '" alt="Spieler-Avatar" width="' . $playeroverview_avatar_width . '" height="' . $playeroverview_avatar_height . '" />';
 
-            if (empty($player['avatar_link']) || $mybb->user['uid'] == 0) {
+            $playeravavalues = playeroverview_set_playeravatar($player);
 
-                //if no avatar is given by the user, show the default avatar - but only if there is a default avatar given in the settings
-                if (!empty($playeroverview_avatar_default)) {
-                    $playeravatar = playeroverview_validate_standard_avatar($playeroverview_avatar_default);
-                    $playeravatar_image_html = '<img src="' . $playeravatar . '" alt="Spieler-Avatar" width="' . $playeroverview_avatar_width . '" height="' . $playeroverview_avatar_height . '" />';
-                } else {
-                    $playeravatar = "";
-                    $playeravatar_image_html = $lang->playeroverview_noava;
-                }
-            }
-            if (!empty($playeravatar)) {
-                $playeravatar_image_html = '<img src="' . $playeravatar . '" alt="Spieler-Avatar" width="' . $playeroverview_avatar_width . '" height="' . $playeroverview_avatar_height . '" />';
-            }
+            $avaheader = $playeravavalues['avaheader'];
+            $playeravatar = $playeravavalues['playeravatar'];
+            $playeravatar_image_html = $playeravavalues['playeravatar_image_html'];
+            $playeravalink = $playeravavalues['playeravalink'];
+
             eval ("\$playeroverview_profile_avatar = \"" . $templates->get("playeroverview_profile_avatar") . "\";");
 
         }
@@ -1016,24 +987,17 @@ function playeroverview_show_profile()
             while ($character = $db->fetch_array($characters)) {
                 //ensure correct username link
                 $charaname = htmlspecialchars_uni($character['username']);
-                $charaavatar = "";
                 $charalink = build_profile_link(format_name($charaname, $character['usergroup'], $character['displaygroup']), (int) $character['uid']);
+                $charaavatar = "";
 
                 //SETTINGS: character avatars only if setting allows
                 if ($playeroverview_characters_avatar != 1) {
                     //don't show avatar of character
                     $playeroverview_profile_characters_bit_avatar = "";
-
                 } elseif ($playeroverview_characters_avatar == 1) {
-                    //show avatar of character
-                    $charaavatar = $character['avatar'];
-                    if (empty($character['avatar']) || $mybb->user['uid'] == 0) {
 
-                        //if no avatar is given by the user, show the default avatar - but only if there is a default avatar given in the settings
-                        if (!empty($playeroverview_characters_avatar_default)) {
-                            $charaavatar = playeroverview_validate_standard_avatar($playeroverview_characters_avatar_default);
-                        }
-                    }
+                    $charaavatar = playeroverview_set_charaavatar($character);
+                    
                     if (!empty($charaavatar)) {
                         eval ("\$playeroverview_profile_characters_bit_avatar = \"" . $templates->get("playeroverview_profile_characters_bit_avatar") . "\";");
                     } else {
@@ -1130,26 +1094,13 @@ function playeroverview_show_usercp()
 
         } elseif ($playeroverview_avatar == 1) {
             //show avatar of player
-            $avaheader = '<td class="tcat"><span class="smalltext"><strong>' . $lang->playeroverview_avatar_title . '</strong></span></td>';
 
-            $playeravatar = htmlspecialchars_uni($player['avatar_link']);
-            $playeravatar_image_html = '<img src="' . $playeravatar . '" alt="Spieler-Avatar" width="' . $playeroverview_avatar_width . '" height="' . $playeroverview_avatar_height . '" />';
+            $playeravavalues = playeroverview_set_playeravatar($player);
 
-            if (empty($player['avatar_link']) || $mybb->user['uid'] == 0) {
-                $playeravatar_image_html = "";
-                $playeravatar = "";
-
-                //if no avatar is given by the user, show the default avatar - but only if there is a default avatar given in the settings
-                if (!empty($playeroverview_avatar_default)) {
-                    $playeravatar = playeroverview_validate_standard_avatar($playeroverview_avatar_default);
-                    $playeravatar_image_html = '<img src="' . $playeravatar . '" alt="Spieler-Avatar" width="' . $playeroverview_avatar_width . '" height="' . $playeroverview_avatar_height . '" />';
-                }
-
-            } else {
-                $playeravalink = htmlspecialchars_uni($player['avatar_link']);
-                $playeravatar = htmlspecialchars_uni($player['avatar_link']);
-                $playeravatar_image_html = '<img src="' . $playeravatar . '" alt="Spieler-Avatar" width="' . $playeroverview_avatar_width . '" height="' . $playeroverview_avatar_height . '" />';
-            }
+            $avaheader = $playeravavalues['avaheader'];
+            $playeravatar = $playeravavalues['playeravatar'];
+            $playeravatar_image_html = $playeravavalues['playeravatar_image_html'];
+            $playeravalink = $playeravavalues['playeravalink'];
 
             eval ("\$playeroverview_ucp_avatar = \"" . $templates->get("playeroverview_ucp_avatar") . "\";");
         }
@@ -1525,14 +1476,76 @@ function playeroverview_validate_standard_avatar($playeroverview_avatar_default)
 
 }
 
-//Function only used for error checking: can write to console
-function debug_to_console($data)
+//re-usable function to correctly set the player avatar
+function playeroverview_set_playeravatar($player)
 {
-    $output = $data;
-    if (is_array($output))
-        $output = implode(',', $output);
 
-    echo "<script>console.log('Debug Objects: " . $output . "' );</script>";
+    global $lang, $db, $mybb;
+
+    //SETTINGS
+    $playeroverview_avatar = intval($mybb->settings['playeroverview_avatar']);
+    $playeroverview_avatar_default = strval($mybb->settings['playeroverview_avatar_default']);
+    $playeroverview_avatar_width = intval($mybb->settings['playeroverview_avatar_width']);
+    $playeroverview_avatar_height = intval($mybb->settings['playeroverview_avatar_height']);
+
+    //show avatar of player
+    $avaheader = '<td class="tcat"><span class="smalltext"><strong>' . $lang->playeroverview_avatar_title . '</strong></span></td>';
+    $playeravalink = htmlspecialchars_uni($player['avatar_link']);
+    $playeravatar = htmlspecialchars_uni($player['avatar_link']);
+    $playeravatar_image_html = '<img src="' . $playeravatar . '" alt="Spieler-Avatar" width="' . $playeroverview_avatar_width . '" height="' . $playeroverview_avatar_height . '" />';
+
+    if (empty($player['avatar_link']) || $mybb->user['uid'] == 0) {
+
+        //if no avatar is given by the user, show the default avatar - but only if there is a default avatar given in the settings
+        if (!empty($playeroverview_avatar_default)) {
+            $playeravatar = playeroverview_validate_standard_avatar($playeroverview_avatar_default);
+            $playeravatar_image_html = '<img src="' . $playeravatar . '" alt="Spieler-Avatar" width="' . $playeroverview_avatar_width . '" height="' . $playeroverview_avatar_height . '" />';
+
+        } else {
+            $playeravatar = "";
+            $playeravatar_image_html = $lang->playeroverview_noava;
+            if ($mybb->user['uid'] == 0 && !empty($player['avatar_link'])) {
+                $playeravatar_image_html = $lang->playeroverview_noava_guest;
+            }
+        }
+    }
+
+    $avavalues = array(
+        'avaheader' => $avaheader,
+        'playeravatar' => $playeravatar,
+        'playeravatar_image_html' => $playeravatar_image_html,
+        'playeravalink' => $playeravalink
+    );
+
+    return $avavalues;
+}
+
+//re-usable function to correctly set the character avatar
+function playeroverview_set_charaavatar($character)
+{
+    global $lang, $db, $mybb;
+
+    //SETTINGS
+    $playeroverview_characters_avatar_default = strval($mybb->settings['playeroverview_characters_avatar_default']);
+
+    //show avatar of character
+    $charaavatar = $character['avatar'];
+
+    //if no avatar is given by the user, show the default avatar - but only if there is a default avatar given in the settings
+    if (empty($character['avatar']) || $mybb->user['uid'] == 0) {
+
+        if (!empty($playeroverview_characters_avatar_default)) {
+            $charaavatar = playeroverview_validate_standard_avatar($playeroverview_characters_avatar_default);
+        } else {
+            $charaavatar = $character['avatar'];
+            if ($mybb->user['uid'] == 0 && !empty($character['avatar'])) {
+                $charaavatar = "";
+            }
+        }
+    }
+
+    return $charaavatar;
+
 }
 
 
@@ -1747,14 +1760,26 @@ function add_menu_playeroverview()
     $lang->load("playeroverview");
 
     $playeroverview_menu = "";
-     //SETTINGS
-     $playeroverview_activate = intval($mybb->settings['playeroverview_activate']);
-     $playeroverview_activate_guest = intval($mybb->settings['playeroverview_activate_guest']);
+    //SETTINGS
+    $playeroverview_activate = intval($mybb->settings['playeroverview_activate']);
+    $playeroverview_activate_guest = intval($mybb->settings['playeroverview_activate_guest']);
 
     if ($playeroverview_activate == 1 || ($playeroverview_activate_guest == 1 && $mybb->user['uid'] == 0)) {
         eval ("\$playeroverview_menu = \"" . $templates->get("playeroverview_menu") . "\";");
     }
 
+}
+
+/************************ DEBUG  ************************/
+
+//Function only used for error checking: can write to console
+function debug_to_console($data)
+{
+    $output = $data;
+    if (is_array($output))
+        $output = implode(',', $output);
+
+    echo "<script>console.log('Debug Objects: " . $output . "' );</script>";
 }
 
 ?>

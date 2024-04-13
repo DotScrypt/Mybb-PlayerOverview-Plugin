@@ -1,10 +1,12 @@
 <?php
 $l['playeroverview_title'] = "Spieler-Übersicht";
+$l['playeroverview_menu_nav'] = "Spieler-Übersicht";
 
 $l['playeroverview_inactive'] = "Die \"Spieler-Übersicht\" wurde vom Administrator deaktiviert.";
 $l['playeroverview_noname'] = "Kein Spielername angegeben";
 $l['playeroverview_nodesc'] = "Keine Beschreibung angegeben";
 $l['playeroverview_noava'] = "Kein Avatar angegeben";
+$l['playeroverview_noava_guest'] = "Avatare sind für Gäste nicht einsehbar";
 
 //titles
 $l['playeroverview_profile_title'] = "Spieler-Infos";
@@ -26,5 +28,7 @@ $l['playeroverview_avalink_nonvalid_error'] = "Die URL, die du als Spieleravatar
 $l['playeroverview_avalink_extension_error'] = "Die URL, die du als Spieleravatar angegeben hast, hat keine gültige Endung - erlaubt sind Bilder vom Typ gif|jpg|jpeg|jpe|bmp|png.";
 $l['playeroverview_avalink_dimensions_error'] = "Das Bild, das du als Spieleravatar angegeben hast, hat keine gültige Dimensionen.";
 
+//location for who's online
+$l['viewing_playeroverview'] = "Sieht sich die <a href=\"misc.php?action=playeroverview\">\"Spieler-Übersicht\" </a> an";
 
 ?>
