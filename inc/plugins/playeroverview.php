@@ -36,7 +36,7 @@ if (isset($templatelist)) {
 }
 
 //TEMPLATELIST 
-$templatelist .= 'playeroverview, playeroverview_playerbit, playeroverview_playerbit_avatar, playeroverview_playerbit_characters, playeroverview_playerbit_characters_bit, playeroverview_playerbit_characters_bit_avatar';
+$templatelist .= 'playeroverview, playeroverview_playerbit, playeroverview_playerbit_away, playeroverview_playerbit_avatar, playeroverview_playerbit_onlinestatus, playeroverview_playerbit_characters, playeroverview_playerbit_characters_bit, playeroverview_playerbit_characters_bit_avatar';
 $templatelist .= 'playeroverview_menu';
 
 if (my_strpos($_SERVER['PHP_SELF'], 'member.php')) {
@@ -61,7 +61,7 @@ $plugins->add_hook('usercp_do_profile_start', 'playeroverview_edit_usercp'); //e
 
 //REGISTER/UNREGISTER USER FUNCTIONS
 $plugins->add_hook('member_do_register_end', 'playeroverview_user_created'); //create player in table when new user is created
-$plugins->add_hook('datahandler_user_delete_start', 'playeroverview_user_deleted'); //delete player in table when user is deleted (and no other as_pid);
+$plugins->add_hook('datahandler_user_delete_start', 'playeroverview_user_deleted'); //delete player in table when user is deleted (and no other as_playerid);
 
 //ATTACH / DETACH FUNCTIONS
 $plugins->add_hook('as_usercp_attachuser', 'playeroverview_asusercp_attachuser'); //as_ucp action: Attach current user to another account
@@ -154,12 +154,28 @@ function playeroverview_install()
             'disporder' => 2,
             'gid' => intval($gid),
         ),
+        'playeroverview_onlinestatus' => array( //show online status in overview list?
+            'title' => $db->escape_string($lang->playeroverview_setting_online),
+            'description' => $db->escape_string($lang->playeroverview_setting_online_desc),
+            'optionscode' => 'yesno',
+            'value' => 1,
+            'disporder' => 3,
+            'gid' => intval($gid),
+        ),
+        'playeroverview_away' => array( //show away status in overview list?
+            'title' => $db->escape_string($lang->playeroverview_setting_away),
+            'description' => $db->escape_string($lang->playeroverview_setting_away_desc),
+            'optionscode' => 'yesno',
+            'value' => 1,
+            'disporder' => 4,
+            'gid' => intval($gid),
+        ),
         'playeroverview_avatar' => array( //show avatar
             'title' => $db->escape_string($lang->playeroverview_setting_avatar),
             'description' => $db->escape_string($lang->playeroverview_setting_avatar_desc),
             'optionscode' => 'yesno',
             'value' => 1,
-            'disporder' => 3,
+            'disporder' => 5,
             'gid' => intval($gid),
         ),
         'playeroverview_avatar_default' => array( //show avatar
@@ -167,7 +183,7 @@ function playeroverview_install()
             'description' => $db->escape_string($lang->playeroverview_setting_avatar_desc_default),
             'optionscode' => 'text',
             'value' => "", // Default
-            'disporder' => 4,
+            'disporder' => 6,
             'gid' => intval($gid),
         ),
         'playeroverview_avatar_width' => array( // avatar width
@@ -175,7 +191,7 @@ function playeroverview_install()
             'description' => $db->escape_string($lang->playeroverview_setting_avatar_desc_width),
             'optionscode' => 'numeric',
             'value' => '250', // Default
-            'disporder' => 5,
+            'disporder' => 7,
             'gid' => intval($gid),
         ),
         'playeroverview_avatar_height' => array( // avatar height
@@ -183,7 +199,7 @@ function playeroverview_install()
             'description' => $db->escape_string($lang->playeroverview_setting_avatar_desc_height),
             'optionscode' => 'numeric',
             'value' => '300', // Default
-            'disporder' => 6,
+            'disporder' => 8,
             'gid' => intval($gid),
         ),
         'playeroverview_characters' => array( //show all characters
@@ -191,7 +207,7 @@ function playeroverview_install()
             'description' => $db->escape_string($lang->playeroverview_setting_character_desc),
             'optionscode' => 'yesno',
             'value' => 1,
-            'disporder' => 7,
+            'disporder' => 9,
             'gid' => intval($gid),
         ),
         'playeroverview_characters_avatar' => array( //show avatar for characters
@@ -199,7 +215,7 @@ function playeroverview_install()
             'description' => $db->escape_string($lang->playeroverview_setting_character_avatar_desc),
             'optionscode' => 'yesno',
             'value' => 1,
-            'disporder' => 8,
+            'disporder' => 10,
             'gid' => intval($gid),
         ),
         'playeroverview_characters_avatar_default' => array( //show avatar for characters
@@ -207,7 +223,7 @@ function playeroverview_install()
             'description' => $db->escape_string($lang->playeroverview_setting_character_avatar_desc_default),
             'optionscode' => 'text',
             'value' => "",
-            'disporder' => 9,
+            'disporder' => 11,
             'gid' => intval($gid),
         ),
         'playeroverview_characters_avatar_width' => array( // character avatar width
@@ -215,7 +231,7 @@ function playeroverview_install()
             'description' => $db->escape_string($lang->playeroverview_setting_character_avatar_desc_width),
             'optionscode' => 'numeric',
             'value' => '50', // Default
-            'disporder' => 10,
+            'disporder' => 12,
             'gid' => intval($gid),
         ),
         'playeroverview_characters_avatar_height' => array( // character avatar height
@@ -223,9 +239,9 @@ function playeroverview_install()
             'description' => $db->escape_string($lang->playeroverview_setting_character_avatar_desc_height),
             'optionscode' => 'numeric',
             'value' => '60', // Default
-            'disporder' => 11,
+            'disporder' => 13,
             'gid' => intval($gid),
-        ),
+        )
     );
 
     // INSERT SETTINGS
@@ -256,11 +272,11 @@ function playeroverview_install()
         }
     }
 
-    //pid in user table - mark as as_pid since Account Switcher is necessary for this
-    if (!$db->field_exists('as_pid', 'users')) {
+    //pid in user table - mark as as_playerid since Account Switcher is necessary for this
+    if (!$db->field_exists('as_playerid', 'users')) {
         $db->add_column(
             'users',
-            'as_pid',
+            'as_playerid',
             'int(10)'
         );
     }
@@ -315,8 +331,8 @@ function playeroverview_uninstall()
     }
 
     //delete field in user table (DB)
-    if ($db->field_exists("as_pid", "users")) {
-        $db->drop_column("users", "as_pid");
+    if ($db->field_exists("as_playerid", "users")) {
+        $db->drop_column("users", "as_playerid");
     }
 
     //delete DB
@@ -475,7 +491,11 @@ function playeroverview_templates_add()
     //playeroverview_playerbit
     $template_playeroverview_playerbit = '<tr>
 	{$playeroverview_playerbit_avatar}
-	<td class="{$altbg}">{$playername}</td>
+	<td class="{$altbg}">
+		{$playername}
+		{$player_onlinestatus}
+        {$player_away}
+	</td>
 	<td class="{$altbg}">{$playertext}</td>
 	<td class="{$altbg}">{$lastactive_date}</td>
 	<td class="{$altbg}">{$regdate_date}</td>
@@ -545,6 +565,38 @@ function playeroverview_templates_add()
         'dateline' => time()
     );
     $db->insert_query('templates', $insert_array);
+
+
+    //playeroverview_playerbit_onlinestatus
+    $template_playeroverview_playerbit_onlinestatus = '<div class="smalltext {$onlinestatus}"><strong>{$onlinestatus}</strong></div>';
+
+    $insert_array = array(
+        'title' => 'playeroverview_playerbit_onlinestatus',
+        'template' => $db->escape_string($template_playeroverview_playerbit_onlinestatus),
+        'sid' => '-2',
+        'version' => '',
+        'dateline' => time()
+    );
+    $db->insert_query('templates', $insert_array);
+
+      //playeroverview_playerbit_away
+      $template_playeroverview_playerbit_away = '<br /> 
+      <div><strong>{$lang->playeroverview_away_note}</strong></div>
+      <em>{$lang->playeroverview_away_reason} {$awayreason}</em>
+      <div class="smalltext">
+          {$lang->playeroverview_away_since} {$awaydate} <br /> 
+          {$lang->playeroverview_away_returns} {$returndate}
+      </div>'; 
+
+      $insert_array = array(
+          'title' => 'playeroverview_playerbit_away',
+          'template' => $db->escape_string($template_playeroverview_playerbit_away),
+          'sid' => '-2',
+          'version' => '',
+          'dateline' => time()
+      );
+      $db->insert_query('templates', $insert_array);
+  
 
     /************************** TEMPLATES FOR USER CP **************************/
 
@@ -742,11 +794,14 @@ function playeroverview_templates_add()
 function misc_playeroverview()
 {
     global $db, $mybb, $templates, $theme, $headerinclude, $header, $lang, $footer;
+
     $lang->load("playeroverview");
 
     //SETTINGS
     $playeroverview_activate = intval($mybb->settings['playeroverview_activate']);
     $playeroverview_activate_guest = intval($mybb->settings['playeroverview_activate_guest']);
+    $playeroverview_show_onlinestatus = intval($mybb->settings['playeroverview_onlinestatus']);
+    $playeroverview_show_away = intval($mybb->settings['playeroverview_away']);
     $playeroverview_avatar = intval($mybb->settings['playeroverview_avatar']);
     $playeroverview_avatar_default = strval($mybb->settings['playeroverview_avatar_default']);
     $playeroverview_avatar_width = intval($mybb->settings['playeroverview_avatar_width']);
@@ -760,7 +815,7 @@ function misc_playeroverview()
     $colspan = $playeroverview_avatar + $playeroverview_characters + 4;
 
     //templates
-    $playeroverview = $playeroverview_playerbit = $playeroverview_playerbit_avatar = "";
+    $playeroverview = $playeroverview_playerbit = $playeroverview_playerbit_avatar = $player_onlinestatus = $onlinestatus = $player_away =  "";
     $playeroverview_playerbit_characters = $playeroverview_playerbit_characters_bit = $playeroverview_playerbit_characters_bit_avatar = "";
 
     //SETTINGS: show overview?
@@ -787,7 +842,7 @@ function misc_playeroverview()
             //variables
             $altbg = alt_trow();
 
-            $avaheader = $lastactive = $regdate = $playername = $playeravatar = $playertext = $pid = $lastactive_date = $regdate_date = "";
+            $avaheader = $lastactive = $regdate = $playername = $playeravatar = $playertext = $pid = $lastactive_date = $regdate_date = $playeravalink = $player_away = "";
             $charaheader = $charaname = $charaavatar = $charalink = "";
 
             //PLAYER INFO - name, text, avatar
@@ -802,6 +857,32 @@ function misc_playeroverview()
 
             if (empty($playertext)) {
                 $playertext = "{$lang->playeroverview_nodesc}";
+            }
+
+            
+            //show if user is away
+            if ($playeroverview_show_away) {
+                
+                //get the away values 
+                $awayvalues = playeroverview_away($player);
+                $is_away = $awayvalues['is_away'];
+
+                //only show template if user is actually away
+                if($is_away) {
+                    debug_to_console("is away");
+                    if(empty($player['name'])) {
+                        $lang->playeroverview_away_note =  $lang->playeroverview_away_noname;
+                    }
+                    $lang->playeroverview_away_note = $lang->sprintf($lang->playeroverview_away_note, $player['name']);
+                    $awaydate = $awayvalues['awaydate'];
+                    $awayreason = $awayvalues['awayreason'];
+                    $returndate = $awayvalues['returndate'];
+
+                    eval ("\$player_away = \"" . $templates->get("playeroverview_playerbit_away") . "\";");
+                } else {
+                    $player_away = "";
+                }
+                
             }
 
             //SETTINGS:  show avatar?
@@ -831,21 +912,21 @@ function misc_playeroverview()
                 $charaheader = '<td class="tcat"><span class="smalltext"><strong>' . $lang->playeroverview_charas . '</strong></span></td>';
 
                 //CHARACTER INFO - name, username link, avatar
-                //get all users with as_pid = pid from players table
+                //get all users with as_playerid = pid from players table
                 $characters = $db->query("
                     SELECT *
                     FROM " . TABLE_PREFIX . "users u
-                    WHERE u.as_pid = '$pid'
+                    WHERE u.as_playerid = '$pid'
                     ORDER BY u.username ASC
                 ");
 
                 $playeroverview_playerbit_characters_bit = "";
 
                 while ($character = $db->fetch_array($characters)) {
-                     //ensure correct username link
-                     $charaname = htmlspecialchars_uni($character['username']);
-                     $charaavatar = "";
-                     $charalink = build_profile_link(format_name($charaname, $character['usergroup'], $character['displaygroup']), (int) $character['uid']);
+                    //ensure correct username link
+                    $charaname = htmlspecialchars_uni($character['username']);
+                    $charaavatar = "";
+                    $charalink = build_profile_link(format_name($charaname, $character['usergroup'], $character['displaygroup']), (int) $character['uid']);
 
                     //SETTINGS: character avatars only if setting allows
                     if ($playeroverview_characters_avatar != 1) {
@@ -855,7 +936,7 @@ function misc_playeroverview()
                     } elseif ($playeroverview_characters_avatar == 1) {
 
                         $charaavatar = playeroverview_set_charaavatar($character);
-                      
+
                         if (!empty($charaavatar)) {
                             eval ("\$playeroverview_playerbit_characters_bit_avatar = \"" . $templates->get("playeroverview_playerbit_characters_bit_avatar") . "\";");
                         } else {
@@ -870,12 +951,19 @@ function misc_playeroverview()
                 eval ("\$playeroverview_playerbit_characters = \"" . $templates->get("playeroverview_playerbit_characters") . "\";");
             }
 
+            //show online status
+            if ($playeroverview_show_onlinestatus) {
+                $onlinestatus = playeroverview_onlinestatus($player);
+                eval ("\$player_onlinestatus = \"" . $templates->get("playeroverview_playerbit_onlinestatus") . "\";");
+            }
+
+
             //MORE PLAYER INFO BASED ON CHARACTERS - latest visit, earliest reg date
-            $lastactive = $db->simple_select('users', 'MAX(lastactive) AS max_lastactive', "as_pid = '$pid'");
+            $lastactive = $db->simple_select('users', 'MAX(lastactive) AS max_lastactive', "as_playerid = '$pid'");
             $lastactive_result = $db->fetch_field($lastactive, 'max_lastactive');
             $lastactive_date = my_date('relative', (int) $lastactive_result);
 
-            $regdate = $db->simple_select('users', 'MIN(regdate) AS min_regdate', "as_pid = '$pid'");
+            $regdate = $db->simple_select('users', 'MIN(regdate) AS min_regdate', "as_playerid = '$pid'");
             $regdate_result = $db->fetch_field($regdate, 'min_regdate');
             $regdate_date = my_date('relative', (int) $regdate_result);
 
@@ -915,7 +1003,7 @@ function playeroverview_show_profile()
     $playeroverview_profile = $playeroverview_profile_avatar = $playeroverview_profile_characters = $playeroverview_profile_characters_bit = $playeroverview_profile_characters_bit_avatar = "";
 
     //variables
-    $playername = $playertext = $playeravatar = $avaheader = $regdate_date = $lastactive_date = "";
+    $playername = $playertext = $playeravatar = $avaheader = $regdate_date = $lastactive_date = $playeravalink = "";
 
     // user id from uri: "uid=1" for example
     $user_uid = $mybb->get_input('uid', MyBB::INPUT_INT);
@@ -928,9 +1016,9 @@ function playeroverview_show_profile()
 
     } elseif ($playeroverview_activate == 1) {
 
-        //get as_pid of deleted user
-        $query = $db->simple_select('users', 'as_pid', "uid= '$user_uid'");
-        $user_player = $db->fetch_field($query, 'as_pid');
+        //get as_playerid of deleted user
+        $query = $db->simple_select('users', 'as_playerid', "uid= '$user_uid'");
+        $user_player = $db->fetch_field($query, 'as_playerid');
 
         $query = $db->simple_select("players", "*", "pid='$user_player'");
         $player = $db->fetch_array($query);
@@ -974,11 +1062,11 @@ function playeroverview_show_profile()
             $charaheader = '<td class="tcat"><span class="smalltext"><strong>' . $lang->playeroverview_charas . '</strong></span></td>';
 
             //CHARACTER INFO - name, username link, avatar
-            //get all users with as_pid = pid from players table
+            //get all users with as_playerid = pid from players table
             $characters = $db->query("
                 SELECT *
                 FROM " . TABLE_PREFIX . "users u
-                WHERE u.as_pid = '$user_player'
+                WHERE u.as_playerid = '$user_player'
                 ORDER BY u.username ASC
             ");
 
@@ -997,7 +1085,7 @@ function playeroverview_show_profile()
                 } elseif ($playeroverview_characters_avatar == 1) {
 
                     $charaavatar = playeroverview_set_charaavatar($character);
-                    
+
                     if (!empty($charaavatar)) {
                         eval ("\$playeroverview_profile_characters_bit_avatar = \"" . $templates->get("playeroverview_profile_characters_bit_avatar") . "\";");
                     } else {
@@ -1013,11 +1101,11 @@ function playeroverview_show_profile()
         }
 
         //MORE PLAYER INFO BASED ON CHARACTERS - latest visit, earliest reg date
-        $lastactive = $db->simple_select('users', 'MAX(lastactive) AS max_lastactive', "as_pid = '$user_player'");
+        $lastactive = $db->simple_select('users', 'MAX(lastactive) AS max_lastactive', "as_playerid = '$user_player'");
         $lastactive_result = $db->fetch_field($lastactive, 'max_lastactive');
         $lastactive_date = my_date('relative', (int) $lastactive_result);
 
-        $regdate = $db->simple_select('users', 'MIN(regdate) AS min_regdate', "as_pid = '$user_player'");
+        $regdate = $db->simple_select('users', 'MIN(regdate) AS min_regdate', "as_playerid = '$user_player'");
         $regdate_result = $db->fetch_field($regdate, 'min_regdate');
         $regdate_date = my_date('relative', (int) $regdate_result);
 
@@ -1078,7 +1166,7 @@ function playeroverview_show_usercp()
     } elseif ($playeroverview_activate == 1) {
 
         //get player info of current user
-        $user_player = $mybb->user['as_pid'];
+        $user_player = $mybb->user['as_playerid'];
         $user_uid = $mybb->user['uid'];
 
         $query = $db->simple_select("players", "*", "pid='$user_player'");
@@ -1086,6 +1174,7 @@ function playeroverview_show_usercp()
 
         $playername = htmlspecialchars_uni($player['name']);
         $playertext = htmlspecialchars_uni($player['desc']);
+        $playeravalink = "";
 
         //SETTINGS:  show avatar?
         if ($playeroverview_avatar != 1) {
@@ -1139,7 +1228,7 @@ function playeroverview_user_created()
 {
     global $db, $user_info;
 
-    //update user table with as_pid of created PID
+    //update user table with as_playerid of created PID
     $user_uid = $user_info['uid'];
 
     create_new_player($user_uid);
@@ -1160,11 +1249,11 @@ function playeroverview_user_deleted($userhandler)
         //Escape the value to prevent SQL injection
         $user_uid = $db->escape_string($deleted_uid);
 
-        //get as_pid of deleted user
-        $query = $db->simple_select('users', 'as_pid', "uid= '$user_uid'");
-        $user_previous_pid = $db->fetch_field($query, 'as_pid');
+        //get as_playerid of deleted user
+        $query = $db->simple_select('users', 'as_playerid', "uid= '$user_uid'");
+        $user_previous_pid = $db->fetch_field($query, 'as_playerid');
 
-        // flag that we don't change the as_pid value to the one of the master, rather just delete the user completely
+        // flag that we don't change the as_playerid value to the one of the master, rather just delete the user completely
         // this is necessary since we use the delete_player function multiple times. 
         $master_pid = -1;
 
@@ -1183,11 +1272,11 @@ function playeroverview_asusercp_attachuser($args)
     global $db, $mybb;
 
     //player id of master user
-    $master_pid = $args['as_pid'];
+    $master_pid = $args['as_playerid'];
 
     //user id of current user
     $user_uid = $mybb->user['uid'];
-    $user_previous_pid = $mybb->user['as_pid'];
+    $user_previous_pid = $mybb->user['as_playerid'];
 
     delete_player($user_uid, $master_pid, $user_previous_pid);
 }
@@ -1198,7 +1287,7 @@ function playeroverview_asusercp_detachuser()
 
     global $db, $mybb;
 
-    //update user table with as_pid of created PID
+    //update user table with as_playerid of created PID
     $user_uid = $mybb->user['uid'];
     create_new_player($user_uid);
 
@@ -1214,14 +1303,14 @@ function playeroverview_asusercp_attachother($args)
     //uid of attached user
     $user_uid = $args['target_uid'];
 
-    // as_pid of master user
-    $master_pid = $mybb->user['as_pid'];
+    // as_playerid of master user
+    $master_pid = $mybb->user['as_playerid'];
 
-    //as_pid of attached user 
-    $query = $db->simple_select('users', 'as_pid', "uid = '$user_uid'");
+    //as_playerid of attached user 
+    $query = $db->simple_select('users', 'as_playerid', "uid = '$user_uid'");
 
     // Fetch the count from the result
-    $user_previous_pid = $db->fetch_field($query, 'as_pid');
+    $user_previous_pid = $db->fetch_field($query, 'as_playerid');
 
     delete_player($user_uid, $master_pid, $user_previous_pid);
 
@@ -1236,7 +1325,7 @@ function playeroverview_asusercp_detachother($args)
     create_new_player($user_uid);
 }
 
-//create a new player in the player db and update the user with the new as_pid of the created player
+//create a new player in the player db and update the user with the new as_playerid of the created player
 //also used when a new player is registering
 function create_new_player($user_uid)
 {
@@ -1255,7 +1344,7 @@ function create_new_player($user_uid)
     $created_pid = $db->insert_id();
 
     $update_array = array(
-        'as_pid' => $db->escape_string($created_pid)
+        'as_playerid' => $db->escape_string($created_pid)
     );
 
     // Perform the database update
@@ -1263,30 +1352,30 @@ function create_new_player($user_uid)
 
 }
 
-//delete player when an account is attached to another account and update account with as_pid of master account
+//delete player when an account is attached to another account and update account with as_playerid of master account
 //also used when user is deleted completely (over admin cp)
 function delete_player($user_uid, $master_pid, $user_previous_pid)
 {
 
     global $db;
 
-    if ($master_pid == -1) { // no need to change as_pid to a specific value because the user is just deleted
+    if ($master_pid == -1) { // no need to change as_playerid to a specific value because the user is just deleted
 
     } else {
 
-        //assign as_pid of master to current user
-        //update user table with as_pid of created PID
+        //assign as_playerid of master to current user
+        //update user table with as_playerid of created PID
         $update_array = array(
-            "as_pid" => $db->escape_string($master_pid)
+            "as_playerid" => $db->escape_string($master_pid)
         );
 
         // Perform the database update
         $db->update_query('users', $update_array, "uid='$user_uid'");
     }
 
-    //get count of users with previous as_pid 
+    //get count of users with previous as_playerid 
     //if count > 0, then don't delete it - otherwise delete it! 
-    $query = $db->simple_select("users", "COUNT(*) as pid_count", "as_pid = '$user_previous_pid'");
+    $query = $db->simple_select("users", "COUNT(*) as pid_count", "as_playerid = '$user_previous_pid'");
     $result = $db->fetch_field($query, "pid_count");
 
     $num_users = intval($result);
@@ -1294,7 +1383,7 @@ function delete_player($user_uid, $master_pid, $user_previous_pid)
     if ($num_users > 0) {
         // there are other charas that are assigned to this player - don't delete this
     } else {
-        //delete player with previous as_pid of current user
+        //delete player with previous as_playerid of current user
         $condition = "pid = '$user_previous_pid'";
 
         // Run the query to delete the entry from the custom table
@@ -1305,7 +1394,7 @@ function delete_player($user_uid, $master_pid, $user_previous_pid)
 
 /************************ HELPING FUNCTIONS ************************/
 
-//when plugin is installed, go through existing users and initialize the as_pid value
+//when plugin is installed, go through existing users and initialize the as_playerid value
 function playeroverview_initialize()
 {
 
@@ -1334,13 +1423,13 @@ function playeroverview_initialize()
         //assign previously created player to all those users 
         while ($attached_user = $db->fetch_array($attached_users)) {
 
-            //get as_pid from master user
-            $query = $db->simple_select('users', 'as_pid', "uid = '$master_uid'");
-            $master_pid = $db->fetch_field($query, "as_pid");
+            //get as_playerid from master user
+            $query = $db->simple_select('users', 'as_playerid', "uid = '$master_uid'");
+            $master_pid = $db->fetch_field($query, "as_playerid");
 
-            //assign master pid to as_pid of attached accounts
+            //assign master pid to as_playerid of attached accounts
             $update_array = array(
-                'as_pid' => $db->escape_string($master_pid)
+                'as_playerid' => $db->escape_string($master_pid)
             );
 
             // Perform the database update
@@ -1482,6 +1571,8 @@ function playeroverview_set_playeravatar($player)
 
     global $lang, $db, $mybb;
 
+    $playeravalink = $playeravatar = $playeravatar_image_html = $avaheader = "";
+
     //SETTINGS
     $playeroverview_avatar = intval($mybb->settings['playeroverview_avatar']);
     $playeroverview_avatar_default = strval($mybb->settings['playeroverview_avatar_default']);
@@ -1525,6 +1616,8 @@ function playeroverview_set_charaavatar($character)
 {
     global $lang, $db, $mybb;
 
+    $charaavatar = "";
+
     //SETTINGS
     $playeroverview_characters_avatar_default = strval($mybb->settings['playeroverview_characters_avatar_default']);
 
@@ -1548,6 +1641,100 @@ function playeroverview_set_charaavatar($character)
 
 }
 
+function playeroverview_onlinestatus($player)
+{
+    global $lang, $db, $mybb;
+
+    $onlinestatus = "offline";
+    $playerid = $player['pid'];
+
+    $timesearch = TIME_NOW - (int) $mybb->settings['wolcutoff']; //same timesearch as in online part for footer
+
+    //get info of admin uid1 (==NixAeterna Account)
+    $query = $db->query("
+        SELECT
+                s.sid, s.ip, s.time, s.location, u.uid, u.username, u.invisible, u.usergroup, u.displaygroup, u.avatar, u.lastactive
+        FROM
+                " . TABLE_PREFIX . "users u LEFT JOIN " . TABLE_PREFIX . "sessions s ON (u.uid=s.uid)
+        WHERE u.as_playerid = '$playerid'
+        ");
+
+    while ($user = $db->fetch_array($query)) {
+
+        //if user was online with any of the charas, show him as online
+        if ($user['time'] > $timesearch) {
+            $onlinestatus = "online";
+        }
+
+        //never set it to offline here, otherwise it might be set to offline with the last chara
+
+    }
+
+    return $onlinestatus;
+
+}
+
+//show away in overview
+function playeroverview_away($player)
+{
+
+    global $db, $mybb, $lang;
+    require_once "./global.php";
+    require_once MYBB_ROOT . "inc/functions_post.php";
+    require_once MYBB_ROOT . "inc/functions_user.php";
+    require_once MYBB_ROOT . "inc/class_parser.php";
+    require_once MYBB_ROOT . "inc/functions_modcp.php";
+    $parser = new postParser;
+
+    $playerid = $player['pid'];
+
+    $awaydate = $awayreason = $returndate = "";
+    $is_away = FALSE;
+
+    $query = $db->simple_select("users", "*", "as_playerid='$playerid'");
+
+    while ($user = $db->fetch_array($query)) {
+
+        if ($user['away'] == 1 && $mybb->settings['allowaway'] != 0) {
+            $is_away = TRUE;
+            $awaydate = my_date($mybb->settings['dateformat'], $user['awaydate']);
+            if (!empty($user['awayreason'])) {
+                $reason = $parser->parse_badwords($user['awayreason']);
+                $awayreason = htmlspecialchars_uni($reason);
+            } else {
+                $awayreason = $lang->playeroverview_away_no_reason;
+            }
+            if ($user['returndate'] == '') {
+                $returndate = $lang->playeroverview_away_unknown;
+            } else {
+                $returnhome = explode("-", $user['returndate']);
+
+                // PHP native date functions use integers so timestamps for years after 2038 will not work
+                // Thus we use adodb_mktime
+                if ($returnhome[2] >= 2038) {
+                    require_once MYBB_ROOT . "inc/functions_time.php";
+                    $returnmkdate = adodb_mktime(0, 0, 0, $returnhome[1], $returnhome[0], $returnhome[2]);
+                    $returndate = my_date($mybb->settings['dateformat'], $returnmkdate, "", 1, true);
+                } else {
+                    $returnmkdate = mktime(0, 0, 0, $returnhome[1], $returnhome[0], $returnhome[2]);
+                    $returndate = my_date($mybb->settings['dateformat'], $returnmkdate);
+                }
+
+            }
+        }
+
+    }
+
+    $awayvalues = array(
+        'is_away' => $is_away,
+        'awaydate' => $awaydate,
+        'awayreason' => $awayreason,
+        'returndate' => $returndate
+    );
+
+    return $awayvalues;
+
+}
 
 /************************ PATCHES SETUP ************************/
 
@@ -1560,7 +1747,7 @@ function playeroverview_as_patches()
     $pdescription1 = "Add hook for custom playeroverview plugin: Attach current user to another account";
     $psearch1 = "redirect(\"usercp.php?action=as_edit\", \$lang->aj_attach_success);";
     $pbefore1 = "\$arguments = array(
-        'as_pid' => (int) \$target['as_pid'],
+        'as_playerid' => (int) \$target['as_playerid'],
     );
 
     \$plugins->run_hooks('as_usercp_attachuser', \$arguments);";
@@ -1732,10 +1919,11 @@ function playeroverview_online_activity($user_activity)
 {
     global $user;
 
-    if (my_strpos($user['location'], "misc.php?action=playeroverview") !== false) {
-        $user_activity['activity'] = "playeroverview";
+    if (isset($user['location'])) {
+        if (my_strpos($user['location'], "misc.php?action=playeroverview") !== false) {
+            $user_activity['activity'] = "playeroverview";
+        }
     }
-
     return $user_activity;
 }
 

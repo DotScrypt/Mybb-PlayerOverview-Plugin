@@ -1,8 +1,11 @@
-# Spielerübersicht
-Dieses "Spielerübersicht" Plugin erstellt eine Wer ist Wer Liste - es ermöglicht somit Spieler/innen, eine Liste der gespielten Charakteren auf einer separaten Seite anzuzeigen. Spieler/innen können einen Spieler-Namen, eine Spieler-Beschreibung, und einen Avatar für die Spielerübersicht angeben. Das Plugin arbeitet nahtlos mit dem Accountswitcher Plugin von doylecc zusammen, was bedeutet, dass jede/r Spieler/in die Angaben (Name / Beschreibung / Avatar) nur einmal machen müssen, und alle angehängten Accounts erhalten automatisch dieselben Angaben.
+# Spieler-Übersicht
+Dieses "Spieler-Übersicht" Plugin erstellt eine Wer ist Wer Liste - es ermöglicht somit Spieler/innen, eine Liste der gespielten Charakteren auf einer separaten Seite anzuzeigen. <b>Spieler/innen können einen Spieler-Namen, eine Spieler-Beschreibung, und einen Avatar für die Spieler-Übersicht angeben</b>. Das Plugin arbeitet nahtlos mit dem Accountswitcher Plugin von doylecc zusammen, was bedeutet, dass jede/r Spieler/in die Angaben (Name / Beschreibung / Avatar) nur einmal machen müssen, und alle angehängten Accounts erhalten automatisch dieselben Angaben.
 
 ### Hinweis
-Wird ein Account in den Accountswitcher Einstellungen von einem anderen Account gelöst, wird er entsprechend in der Spielerübersicht unter einem neuen Spieler angezigt. 
+Wird ein Account in den Accountswitcher Einstellungen von einem anderen Account gelöst, wird er entsprechend in der Spieler-Übersicht unter einem neuen Spieler angezeigt. 
+
+### Credits
+Die Basis-Idee stammt von dem <a href="https://storming-gates.de/showthread.php?tid=19354" target="_blank">Wer-ist-Wer</a> Plugin von <a href="https://storming-gates.de/member.php?action=profile&uid=112" target="_blank">Chan / Melancholia, wurde aber um einige Funktionen erweitert. Vielen Dank aber für die Basis! 
 
 ## Änderungsprotokoll: 
 - Version 1.0

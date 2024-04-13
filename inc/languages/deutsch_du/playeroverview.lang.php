@@ -8,6 +8,16 @@ $l['playeroverview_nodesc'] = "Keine Beschreibung angegeben";
 $l['playeroverview_noava'] = "Kein Avatar angegeben";
 $l['playeroverview_noava_guest'] = "Avatare sind für Gäste nicht einsehbar";
 
+//away
+$l['playeroverview_away_note'] = "{1} ist momentan abwesend.";
+$l['playeroverview_away_reason'] = "Grund:";
+$l['playeroverview_away_since'] = "Abwesend seit:";
+$l['playeroverview_away_returns'] = "Abwesend bis:";
+$l['playeroverview_away_no_reason'] = "Nicht angegeben.";
+
+$l['playeroverview_away_unknown'] = "Rückkehr nicht angegeben.";
+$l['playeroverview_away_noname'] = "Dieser Spieler ist momentan abwesend.";
+
 //titles
 $l['playeroverview_profile_title'] = "Spieler-Infos";
 $l['playeroverview_avatar_title'] = "Spieler-Avatar";
