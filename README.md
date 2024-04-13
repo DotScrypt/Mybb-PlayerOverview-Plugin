@@ -87,14 +87,14 @@ Die Templates sind für jedes Theme unter der Templategruppe "Player Overview Te
 <img src="https://i.ibb.co/wc33bgR/Player-Overview-List-guest.png" alt="Player-Overview-List-guest" border="0">
 
 ### Avatare deaktiviert
-<img src="https://i.ibb.co/d2KF7dz/Player-Overview-noava.png" alt="Player-Overview-noava" border="0">
+<img src="https://i.ibb.co/DCKhLxS/Player-Overview-noava.png" alt="Player-Overview-noava" border="0">
 
 ### Charakter-Ansicht deaktiviert
 <img src="https://i.ibb.co/s1KFg09/Player-Overview-nocharas.png" alt="Player-Overview-nocharas" border="0">
 
 ## Profil-Ansicht
 ### Mitglieder Ansicht
-<img src="https://i.ibb.co/tpH0BnT/Player-Overview-Profile.png" alt="Player-Overview-Profile" border="0">
+<img src="https://i.ibb.co/WvHrn74/Player-Overview-Profile.png" alt="Player-Overview-Profile" border="0">
 
 ## User-CP Ansicht
 ### User-CP: Spieler können ihre Informationen angeben
