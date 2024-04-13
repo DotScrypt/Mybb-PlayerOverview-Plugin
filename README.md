@@ -75,39 +75,39 @@ Die Templates sind für jedes Theme unter der Templategruppe "Player Overview Te
 # Demo Screenshots
 ## Spieler-Übersicht Liste
 ### Deaktiviert
-<img src="https://i.ibb.co/yBvjGnw/Player-Overview-deactivated.png" alt="Player-Overview-deactivated" border="0">
+<img src="https://i.imgur.com/VrXQBN7.png" alt="Player-Overview-deactivated" border="0">
 
 ### Deaktiviert für Gäste
-<img src="https://i.ibb.co/BcKj380/Player-Overview-deactivated-guest.png" alt="Player-Overview-deactivated-guest" border="0"> 
+<img src="https://i.imgur.com/BZOaOTS.png" alt="Player-Overview-deactivated-guest" border="0"> 
 
 ### Aktiviert für Mitglieder
-<img src="https://i.ibb.co/X4ZCbWv/Player-Overview-List.png" alt="Player-Overview-List" border="0">
+<img src="https://i.imgur.com/nnlsvmp.png" alt="Player-Overview-List" border="0">
 
 ### Aktiviert für Gäste
-<img src="https://i.ibb.co/wc33bgR/Player-Overview-List-guest.png" alt="Player-Overview-List-guest" border="0">
+<img src="https://i.imgur.com/ZCiUaYt.png" alt="Player-Overview-List-guest" border="0">
 
 ### Avatare deaktiviert
-<img src="https://i.ibb.co/DCKhLxS/Player-Overview-noava.png" alt="Player-Overview-noava" border="0">
+<img src="https://i.imgur.com/eUnZpDI.png" alt="Player-Overview-noava" border="0">
 
 ### Charakter-Ansicht deaktiviert
-<img src="https://i.ibb.co/s1KFg09/Player-Overview-nocharas.png" alt="Player-Overview-nocharas" border="0">
+<img src="https://i.imgur.com/skYbIQQ.png" alt="Player-Overview-nocharas" border="0">
 
 ## Profil-Ansicht
 ### Mitglieder Ansicht
-<img src="https://i.ibb.co/WvHrn74/Player-Overview-Profile.png" alt="Player-Overview-Profile" border="0">
+<img src="https://i.imgur.com/FD1iVua.png" alt="Player-Overview-Profile" border="0">
 
 ## User-CP Ansicht
 ### User-CP: Spieler können ihre Informationen angeben
-<img src="https://i.ibb.co/SNw7WqB/Player-Overview-usercp.png" alt="Player-Overview-usercp" border="0">
+<img src="https://i.imgur.com/rfqu2W6.png" alt="Player-Overview-usercp" border="0">
 
 ## Einstellungen
 ### Einstellungen für das Plugin
-<img src="https://i.ibb.co/7zzLwwK/Player-Overview-Settings1.png" alt="Player-Overview-Settings1" border="0">
-<img src="https://i.ibb.co/PN8RbMm/Player-Overview-Settings2.png" alt="Player-Overview-Settings2" border="0">
+<img src="https://i.imgur.com/rsQ5lp3.png" alt="Player-Overview-Settings1" border="0">
+<img src="https://i.imgur.com/Bnzo99p.png" alt="Player-Overview-Settings2" border="0">
 
 ## Sonstiges
 ### Menu in der Linkleiste
-<img src="https://i.ibb.co/JvBvHwn/Player-Overview-menu.png" alt="Player-Overview-menu" border="0">
+<img src="https://i.imgur.com/610GUw1.png" alt="Player-Overview-menu" border="0">
 
 ### Wer ist online Ansicht
-<img src="https://i.ibb.co/xjCk2vX/Player-Overview-whosonline.png" alt="Player-Overview-whosonline" border="0">
+<img src="https://i.imgur.com/QrUvduQ.png" alt="Player-Overview-whosonline" border="0">
