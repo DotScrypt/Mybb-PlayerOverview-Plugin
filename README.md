@@ -96,7 +96,7 @@ Die Templates sind für jedes Theme unter der Templategruppe "Player Overview Te
 <img src="https://i.imgur.com/skYbIQQ.png" alt="Player-Overview-nocharas" border="0">
 
 ### Online-Status und Abwesenheit in der Übersicht 
-<img src="https://i.imgur.com/S4cdTdO.png" alt="Player-Overview-nocharas" border="0">
+<img src="https://i.imgur.com/ZCiUaYt.png" alt="Player-Overview-nocharas" border="0">
 
 ## Profil-Ansicht
 ### Mitglieder Ansicht
@@ -108,7 +108,7 @@ Die Templates sind für jedes Theme unter der Templategruppe "Player Overview Te
 
 ## Einstellungen
 ### Einstellungen für das Plugin
-<img src="https://i.imgur.com/bz5aqWl.png" alt="Player-Overview-Settings1" border="0">
+<img src="https://i.imgur.com/5Kpy3ge.png" alt="Player-Overview-Settings1" border="0">
 <img src="https://i.imgur.com/Bnzo99p.png" alt="Player-Overview-Settings2" border="0">
 
 ## Sonstiges
