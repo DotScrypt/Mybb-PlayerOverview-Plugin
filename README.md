@@ -95,6 +95,9 @@ Die Templates sind für jedes Theme unter der Templategruppe "Player Overview Te
 ### Charakter-Ansicht deaktiviert
 <img src="https://i.imgur.com/skYbIQQ.png" alt="Player-Overview-nocharas" border="0">
 
+### Online-Status und Abwesenheit in der Übersicht
+<img src="https://i.imgur.com/S4cdTdO.png" alt="Player-Overview-nocharas" border="0">
+
 ## Profil-Ansicht
 ### Mitglieder Ansicht
 <img src="https://i.imgur.com/FD1iVua.png" alt="Player-Overview-Profile" border="0">
