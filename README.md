@@ -4,10 +4,10 @@ Dieses "Spieler-Übersicht" Plugin erstellt eine Wer ist Wer Liste - es ermögli
 ### Hinweis
 Wird ein Account in den Accountswitcher Einstellungen von einem anderen Account gelöst, wird er entsprechend in der Spieler-Übersicht unter einem neuen Spieler angezeigt. 
 
-### Credits
-Die Basis-Idee stammt von dem <a href="https://storming-gates.de/showthread.php?tid=19354" target="_blank">Wer-ist-Wer</a> Plugin von <a href="https://storming-gates.de/member.php?action=profile&uid=112" target="_blank">Chan / Melancholia</a>, wurde aber um einige Funktionen erweitert. Vielen Dank aber für die Basis! 
+### Alternativen
+- Wem die Funktion für zusätzliche Spieler-Felder in der Wer-ist-Wer Übersicht egal ist, kann sich das <a href="https://storming-gates.de/showthread.php?tid=19354" target="_blank">Wer-ist-Wer</a> Plugin von <a href="https://storming-gates.de/member.php?action=profile&uid=112" target="_blank">Chan / Melancholia</a> anschauen. Der Support für das Plugin wurde allerdings eingestellt.
 
-Wer gerne ein Wer-ist-Wer Plugin installieren möchte, welches andere Funktionen wie Spielerstatistiken etc. bietet, kann sich das <a href="https://github.com/little-evil-genius/Spielerverzeichnis" target="_blank">Spielerverzeichnis & Statistiken</a> Plugin von <a href="https://github.com/little-evil-genius" target="_blank">Lara / little.evil.genius</a> anschauen. 
+- Wer gerne ein Wer-ist-Wer Plugin installieren möchte, welches andere Funktionen wie Spielerstatistiken etc. bietet, kann sich das <a href="https://github.com/little-evil-genius/Spielerverzeichnis" target="_blank">Spielerverzeichnis & Statistiken</a> Plugin von <a href="https://github.com/little-evil-genius" target="_blank">Lara / little.evil.genius</a> anschauen. 
 
 ## Änderungsprotokoll: 
 - Version 1.0
