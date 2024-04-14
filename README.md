@@ -15,6 +15,7 @@ Wer gerne ein Wer-ist-Wer Plugin installieren möchte, welches andere Funktionen
 # Voraussetzungen
 - Der <a href="https://www.mybb.de/erweiterungen/18x/plugins-verschiedenes/enhanced-account-switcher/" target="_blank">Accountswitcher</a> von doylecc <b>muss</b> installiert sein. 
 - Das <a href="https://github.com/frostschutz/MyBB-Patches" target="_blank">Patches-Plugin</a> von frostschutz <b>muss</b> installiert sein. 
+- Das Plugin wurde für PHP 8 programmiert. 
 
 # Datenbank-Änderungen
 ### Hinzugefügte Tabelle: 
