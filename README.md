@@ -29,7 +29,7 @@ Wird ein Account in den Accountswitcher Einstellungen von einem anderen Account 
 - PRÄFIX_players
 
 ### Hinzugefügte Spalten in der bestehenden Tabelle PRÄFIX_user:
-- as_pid
+- as_playerid
 
 # Eingefügte Patches
 ### Für das File "inc/plugins/accountswitcher/as_usercp.php"
