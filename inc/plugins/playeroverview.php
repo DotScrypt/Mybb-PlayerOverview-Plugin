@@ -1,6 +1,6 @@
 <?php
 /**
- *          "Spielerübersicht"  for MyBB 1.8, Version 1.0
+ *          "Spielerübersicht" for MyBB 1.8, Version 1.0
  *          Copyright © DotScrypt 2024
  *          https://github.com/DotScrypt 
  * 
@@ -15,11 +15,11 @@
  *
  *          This program is distributed in the hope that it will be useful,
  *          but WITHOUT ANY WARRANTY; without even the implied warranty of
- *          MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *          MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *          GNU General Public License for more details.
  *
  *          You should have received a copy of the GNU General Public License
- *          along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *          along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -35,7 +35,7 @@ if (isset($templatelist)) {
     $templatelist = '';
 }
 
-//TEMPLATELIST 
+//TEMPLATELIST
 $templatelist .= 'playeroverview, playeroverview_playerbit, playeroverview_playerbit_away, playeroverview_playerbit_avatar, playeroverview_playerbit_onlinestatus, playeroverview_playerbit_characters, playeroverview_playerbit_characters_bit, playeroverview_playerbit_characters_bit_avatar';
 $templatelist .= 'playeroverview_menu';
 
@@ -284,7 +284,7 @@ function playeroverview_install()
     //INSERT CSS
     playeroverview_css_add();
 
-    //INSERT TEMPLATES - in all template sets! sid = -2 to install everywhere! 
+    //INSERT TEMPLATES - in all template sets! sid = -2 to install everywhere!
     playeroverview_templates_add();
 
     //INITIALIZE VALUES OF EXISTING USERS
@@ -580,13 +580,13 @@ function playeroverview_templates_add()
     $db->insert_query('templates', $insert_array);
 
       //playeroverview_playerbit_away
-      $template_playeroverview_playerbit_away = '<br /> 
+      $template_playeroverview_playerbit_away = '<br />
       <div><strong>{$lang->playeroverview_away_note}</strong></div>
       <em>{$lang->playeroverview_away_reason} {$awayreason}</em>
       <div class="smalltext">
-          {$lang->playeroverview_away_since} {$awaydate} <br /> 
+          {$lang->playeroverview_away_since} {$awaydate} <br />
           {$lang->playeroverview_away_returns} {$returndate}
-      </div>'; 
+      </div>';
 
       $insert_array = array(
           'title' => 'playeroverview_playerbit_away',
@@ -826,7 +826,7 @@ function misc_playeroverview()
         // NAVIGATION
         add_breadcrumb($lang->playeroverview_title, "misc.php?action=playeroverview");
 
-        //SETTINGS:  show overview for guests?
+        //SETTINGS: show overview for guests?
         if ($playeroverview_activate_guest != 1 && $mybb->user['uid'] == 0) {
             error_no_permission();
         }
@@ -871,7 +871,7 @@ function misc_playeroverview()
                 if($is_away) {
                     debug_to_console("is away");
                     if(empty($player['name'])) {
-                        $lang->playeroverview_away_note =  $lang->playeroverview_away_noname;
+                        $lang->playeroverview_away_note = $lang->playeroverview_away_noname;
                     }
                     $lang->playeroverview_away_note = $lang->sprintf($lang->playeroverview_away_note, $player['name']);
                     $awaydate = $awayvalues['awaydate'];
@@ -903,7 +903,7 @@ function misc_playeroverview()
 
             }
 
-            //SETTINGS: show characters? 
+            //SETTINGS: show characters?
             if ($playeroverview_characters != 1) {
                 //don't show characters
                 $playeroverview_playerbit_characters = "";
@@ -1034,7 +1034,7 @@ function playeroverview_show_profile()
             $playertext = "{$lang->playeroverview_nodesc}";
         }
 
-        //SETTINGS:  show avatar?
+        //SETTINGS: show avatar?
         if ($playeroverview_avatar != 1) {
             //don't show avatar
             $playeroverview_profile_avatar = "";
@@ -1053,7 +1053,7 @@ function playeroverview_show_profile()
 
         }
 
-        //SETTINGS: show characters? 
+        //SETTINGS: show characters?
         if ($playeroverview_characters != 1) {
             //don't show characters
             $playeroverview_profile_characters = "";
@@ -1373,8 +1373,8 @@ function delete_player($user_uid, $master_pid, $user_previous_pid)
         $db->update_query('users', $update_array, "uid='$user_uid'");
     }
 
-    //get count of users with previous as_playerid 
-    //if count > 0, then don't delete it - otherwise delete it! 
+    //get count of users with previous as_playerid
+    //if count > 0, then don't delete it - otherwise delete it!
     $query = $db->simple_select("users", "COUNT(*) as pid_count", "as_playerid = '$user_previous_pid'");
     $result = $db->fetch_field($query, "pid_count");
 
@@ -1409,18 +1409,18 @@ function playeroverview_initialize()
 
     while ($master = $db->fetch_array($master_users)) {
 
-        //create a player in the player table for each user 
+        //create a player in the player table for each user
         $master_uid = $master['uid'];
         create_new_player($master_uid);
 
-        //get all attached users -> as_uid same as the uid of the master user, loop through them 
+        //get all attached users -> as_uid same as the uid of the master user, loop through them
         $attached_users = $db->query("
         SELECT *
         FROM " . TABLE_PREFIX . "users u
         WHERE u.as_uid = '$master_uid'
         ");
 
-        //assign previously created player to all those users 
+        //assign previously created player to all those users
         while ($attached_user = $db->fetch_array($attached_users)) {
 
             //get as_playerid from master user
@@ -1516,7 +1516,7 @@ function playeroverview_verify_avatar($player)
         }
 
         //validate avatar size
-        //not possible at the moment! 
+        //not possible at the moment!
 
     }
 
@@ -1532,7 +1532,7 @@ function playeroverview_validate_standard_avatar($playeroverview_avatar_default)
 
     $final_avatar_url = "{$theme['imgdir']}/" . $playeroverview_avatar_default;
 
-    //check for double slash in the beginning - if it has one, remove first / 
+    //check for double slash in the beginning - if it has one, remove first /
     $double_slash = substr($playeroverview_avatar_default, 0, 1) === "/";
     if ($double_slash) {
         $playeroverview_avatar_default = substr($playeroverview_avatar_default, 1);
@@ -1913,7 +1913,7 @@ function playeroverview_apply_patches($revert)
     }
 }
 
-/************************ WHO'S ONLINE LOCATION SETUP  ************************/
+/************************ WHO'S ONLINE LOCATION SETUP ************************/
 
 function playeroverview_online_activity($user_activity)
 {
@@ -1939,7 +1939,7 @@ function playeroverview_online_location($plugin_array)
     return $plugin_array;
 }
 
-/************************ HEADER LINK  ************************/
+/************************ HEADER LINK ************************/
 
 //add header link if list should be shown (to all or only to members)
 function add_menu_playeroverview()
@@ -1958,7 +1958,7 @@ function add_menu_playeroverview()
 
 }
 
-/************************ DEBUG  ************************/
+/************************ DEBUG ************************/
 
 //Function only used for error checking: can write to console
 function debug_to_console($data)
