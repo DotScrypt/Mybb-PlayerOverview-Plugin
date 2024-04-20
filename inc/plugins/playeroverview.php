@@ -828,7 +828,7 @@ function misc_playeroverview()
     }
 
     // Check permission for guests
-    if ($playeroverview_settings['activate_guest'] != 1 && $mybb->user['uid'] == 0) {
+    if ($playeroverview_settings['activate_guest'] != 1) {
         error_no_permission();
     }
 
@@ -854,12 +854,12 @@ function misc_playeroverview()
         // Sanitize player name and description
         $playertext = !empty($player['desc']) ? htmlspecialchars_uni($player['desc']) : htmlspecialchars_uni($lang->playeroverview_nodesc);
 
+        $playername = htmlspecialchars_uni($player['name']);
+        $lang->playeroverview_away_note = $lang->sprintf($lang->playeroverview_away_note, $player['name']);
+
         if (empty($player['name'])) {
             $playername = htmlspecialchars_uni($lang->playeroverview_noname);
             $lang->playeroverview_away_note = $lang->playeroverview_away_noname;
-        } else {
-            $playername = htmlspecialchars_uni($player['name']);
-            $lang->playeroverview_away_note = $lang->sprintf($lang->playeroverview_away_note, $player['name']);
         }
 
         $away = playeroverview_away($player);
