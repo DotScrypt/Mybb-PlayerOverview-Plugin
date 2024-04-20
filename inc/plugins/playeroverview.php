@@ -290,8 +290,8 @@ function playeroverview_install()
     //INITIALIZE VALUES OF EXISTING USERS
     playeroverview_initialize();
 
-    // Return true to indicate successful installation
-    return true;
+    // Return TRUE to indicate successful installation
+    return TRUE;
 }
 
 //IS INSTALLED
@@ -302,9 +302,9 @@ function playeroverview_is_installed()
 
     //one of the settings in the settingsgroups
     if (isset($mybb->settings['playeroverview_activate'])) {
-        return true;
+        return TRUE;
     }
-    return false;
+    return FALSE;
 }
 
 //UNINSTALL
@@ -1459,10 +1459,10 @@ function playeroverview_validate($player)
             $lang->redirect_profileupdated .= "<li>" . $avatar_error . "</li>";
         }
         $lang->redirect_profileupdated .= "</ul></div>";
-        return false;
+        return FALSE;
     }
 
-    return true;
+    return TRUE;
 
 }
 
@@ -1474,7 +1474,7 @@ function playeroverview_verify_username($player)
     $playername = $player['name'];
 
     // nothing to validate - field can be empty and contain any character!
-    return true;
+    return TRUE;
 }
 
 //validate user description
@@ -1485,7 +1485,7 @@ function playeroverview_verify_desc($player)
     $playerdesc = $player['desc'];
 
     // nothing to validate - field can be empty and contain any character!
-    return true;
+    return TRUE;
 }
 
 //validate avatar link
@@ -1714,7 +1714,7 @@ function playeroverview_away($player)
                 if ($returnhome[2] >= 2038) {
                     require_once MYBB_ROOT . "inc/functions_time.php";
                     $returnmkdate = adodb_mktime(0, 0, 0, $returnhome[1], $returnhome[0], $returnhome[2]);
-                    $returndate = my_date($mybb->settings['dateformat'], $returnmkdate, "", 1, true);
+                    $returndate = my_date($mybb->settings['dateformat'], $returnmkdate, "", 1, TRUE);
                 } else {
                     $returnmkdate = mktime(0, 0, 0, $returnhome[1], $returnhome[0], $returnhome[2]);
                     $returndate = my_date($mybb->settings['dateformat'], $returnmkdate);
@@ -1787,7 +1787,7 @@ function playeroverview_as_patches()
     playeroverview_edit_patches($ptitle4, $pdescription4, $psearch4, $pbefore4);
 
     //apply
-    $revert = false;
+    $revert = FALSE;
     playeroverview_apply_patches($revert);
 }
 
@@ -1838,15 +1838,15 @@ function playeroverview_delete_patches()
     global $db;
 
     //revert patch
-    //true -> revert
-    $revert = true;
+    //TRUE -> revert
+    $revert = TRUE;
     playeroverview_apply_patches($revert);
 
     //delete patch from db
     $db->delete_query('patches', "ptitle LIKE '%Playeroverview%'");
 
     //reapply patches
-    $revert = false;
+    $revert = FALSE;
     playeroverview_apply_patches($revert);
 
 }
@@ -1887,9 +1887,9 @@ function playeroverview_apply_patches($revert)
             }
         }
 
-        $result = $PL->edit_core('patches', $pfile, $edits, true, $debug);
+        $result = $PL->edit_core('patches', $pfile, $edits, TRUE, $debug);
 
-        if ($result === true) {
+        if ($result === TRUE) {
             // Update deactivated patches:
             $db->update_query(
                 'patches',
@@ -1920,7 +1920,7 @@ function playeroverview_online_activity($user_activity)
     global $user;
 
     if (isset($user['location'])) {
-        if (my_strpos($user['location'], "misc.php?action=playeroverview") !== false) {
+        if (my_strpos($user['location'], "misc.php?action=playeroverview") !== FALSE) {
             $user_activity['activity'] = "playeroverview";
         }
     }
@@ -1969,5 +1969,3 @@ function debug_to_console($data)
 
     echo "<script>console.log('Debug Objects: " . $output . "' );</script>";
 }
-
-?>

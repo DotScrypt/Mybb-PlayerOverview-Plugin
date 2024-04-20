@@ -51,5 +51,3 @@ $l['playeroverview_setting_character_avatar_desc_height'] = "Wie hoch sollen die
 
 //template stuff
 $l['templategroup_playeroverview_title'] = "Player Overview";
-
-?>
