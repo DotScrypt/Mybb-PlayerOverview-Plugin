@@ -2,8 +2,8 @@
 /**
  *          "Spielerübersicht" for MyBB 1.8, Version 1.0
  *          Copyright © DotScrypt 2024
- *          https://github.com/DotScrypt 
- * 
+ *          https://github.com/DotScrypt
+ *
  *          based on the Plugin:
  *          "WER IST WER?" VON CHAN (MELANCHOLIA) © 2016
  *          https://storming-gates.de/showthread.php?tid=19354
@@ -126,8 +126,8 @@ function playeroverview_install()
     //INITIALIZE VALUES OF EXISTING USERS
     playeroverview_initialize();
 
-    // Return TRUE to indicate successful installation
-    return TRUE;
+    // Return true to indicate successful installation
+    return true;
 }
 
 //IS INSTALLED
@@ -138,9 +138,9 @@ function playeroverview_is_installed()
 
     //one of the settings in the settingsgroups
     if (isset($mybb->settings['playeroverview_activate'])) {
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 //UNINSTALL
@@ -454,7 +454,7 @@ function playeroverview_templates_add()
 
     global $db, $lang;
 
-    // Define the template group properties 
+    // Define the template group properties
     $template_group = array(
         'prefix' => 'playeroverview', // The prefix for your templates
         'title' => $db->escape_string($lang->templategroup_playeroverview_title), // The title of the template group
@@ -893,7 +893,7 @@ function misc_playeroverview()
                 //show if user is away
                 if ($playeroverview_show_away) {
 
-                    //get the away values 
+                    //get the away values
                     $awayvalues = playeroverview_away($player);
                     $is_away = $awayvalues['is_away'];
 
@@ -1235,7 +1235,7 @@ function playeroverview_user_deleted($userhandler)
         $user_previous_pid = $db->fetch_field($query, 'as_playerid');
 
         // flag that we don't change the as_playerid value to the one of the master, rather just delete the user completely
-        // this is necessary since we use the delete_player function multiple times. 
+        // this is necessary since we use the delete_player function multiple times.
         $master_pid = -1;
 
         delete_player($user_uid, $master_pid, $user_previous_pid);
@@ -1287,7 +1287,7 @@ function playeroverview_asusercp_attachother($args)
     // as_playerid of master user
     $master_pid = $mybb->user['as_playerid'];
 
-    //as_playerid of attached user 
+    //as_playerid of attached user
     $query = $db->simple_select('users', 'as_playerid', "uid = '$user_uid'");
 
     // Fetch the count from the result
@@ -1440,10 +1440,10 @@ function playeroverview_validate($player)
             $lang->redirect_profileupdated .= "<li>" . $avatar_error . "</li>";
         }
         $lang->redirect_profileupdated .= "</ul></div>";
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 
 }
 
@@ -1455,7 +1455,7 @@ function playeroverview_verify_username($player)
     $playername = $player['name'];
 
     // nothing to validate - field can be empty and contain any character!
-    return TRUE;
+    return true;
 }
 
 //validate user description
@@ -1466,7 +1466,7 @@ function playeroverview_verify_desc($player)
     $playerdesc = $player['desc'];
 
     // nothing to validate - field can be empty and contain any character!
-    return TRUE;
+    return true;
 }
 
 //validate avatar link
@@ -1669,14 +1669,14 @@ function playeroverview_away($player)
     $playerid = $player['pid'];
 
     $awaydate = $awayreason = $returndate = "";
-    $is_away = FALSE;
+    $is_away = false;
 
     $query = $db->simple_select("users", "*", "as_playerid='$playerid'");
 
     while ($user = $db->fetch_array($query)) {
 
         if ($user['away'] == 1 && $mybb->settings['allowaway'] != 0) {
-            $is_away = TRUE;
+            $is_away = true;
             $awaydate = my_date($mybb->settings['dateformat'], $user['awaydate']);
             if (!empty($user['awayreason'])) {
                 $reason = $parser->parse_badwords($user['awayreason']);
@@ -1694,7 +1694,7 @@ function playeroverview_away($player)
                 if ($returnhome[2] >= 2038) {
                     require_once MYBB_ROOT . "inc/functions_time.php";
                     $returnmkdate = adodb_mktime(0, 0, 0, $returnhome[1], $returnhome[0], $returnhome[2]);
-                    $returndate = my_date($mybb->settings['dateformat'], $returnmkdate, "", 1, TRUE);
+                    $returndate = my_date($mybb->settings['dateformat'], $returnmkdate, "", 1, true);
                 } else {
                     $returnmkdate = mktime(0, 0, 0, $returnhome[1], $returnhome[0], $returnhome[2]);
                     $returndate = my_date($mybb->settings['dateformat'], $returnmkdate);
@@ -1762,7 +1762,7 @@ function playeroverview_show_characters($template, $user_playerid, $altbg)
             if (!empty($charaavatar)) {
                 if ($template == "profile") {
                     eval ("\$playeroverview_profile_characters_bit_avatar = \"" . $templates->get("playeroverview_profile_characters_bit_avatar") . "\";");
-                } else if ($template == "misc") {
+                } elseif ($template == "misc") {
                     eval ("\$playeroverview_playerbit_characters_bit_avatar = \"" . $templates->get("playeroverview_playerbit_characters_bit_avatar") . "\";");
                 }
 
@@ -1774,7 +1774,7 @@ function playeroverview_show_characters($template, $user_playerid, $altbg)
 
         if ($template == "profile") {
             eval ("\$playeroverview_profile_characters_bit .= \"" . $templates->get("playeroverview_profile_characters_bit") . "\";");
-        } else if ($template == "misc") {
+        } elseif ($template == "misc") {
             eval ("\$playeroverview_playerbit_characters_bit .= \"" . $templates->get("playeroverview_playerbit_characters_bit") . "\";");
         }
 
@@ -1784,7 +1784,7 @@ function playeroverview_show_characters($template, $user_playerid, $altbg)
 
     if ($template == "profile") {
         eval ("\$playeroverview_profile_characters = \"" . $templates->get("playeroverview_profile_characters") . "\";");
-    } else if ($template == "misc") {
+    } elseif ($template == "misc") {
         eval ("\$playeroverview_playerbit_characters = \"" . $templates->get("playeroverview_playerbit_characters") . "\";");
     }
 
@@ -1841,7 +1841,7 @@ function playeroverview_as_patches()
     playeroverview_edit_patches($ptitle4, $pdescription4, $psearch4, $pbefore4);
 
     //apply
-    $revert = FALSE;
+    $revert = false;
     playeroverview_apply_patches($revert);
 }
 
@@ -1882,7 +1882,7 @@ function playeroverview_edit_patches($ptitle, $pdescription, $psearch, $pbefore)
         'psize' => 1  // Assuming these are constant values, no need to escape
     );
 
-    //activate 
+    //activate
     $db->insert_query('patches', $data);
 
 }
@@ -1894,15 +1894,15 @@ function playeroverview_delete_patches()
     global $db;
 
     //revert patch
-    //TRUE -> revert
-    $revert = TRUE;
+    //true -> revert
+    $revert = true;
     playeroverview_apply_patches($revert);
 
     //delete patch from db
     $db->delete_query('patches', "ptitle LIKE '%Playeroverview%'");
 
     //reapply patches
-    $revert = FALSE;
+    $revert = false;
     playeroverview_apply_patches($revert);
 
 }
@@ -1943,9 +1943,9 @@ function playeroverview_apply_patches($revert)
             }
         }
 
-        $result = $PL->edit_core('patches', $pfile, $edits, TRUE, $debug);
+        $result = $PL->edit_core('patches', $pfile, $edits, true, $debug);
 
-        if ($result === TRUE) {
+        if ($result === true) {
             // Update deactivated patches:
             $db->update_query(
                 'patches',
@@ -1975,10 +1975,8 @@ function playeroverview_online_activity($user_activity)
 {
     global $user;
 
-    if (isset($user['location'])) {
-        if (my_strpos($user['location'], "misc.php?action=playeroverview") !== FALSE) {
-            $user_activity['activity'] = "playeroverview";
-        }
+    if (isset($user['location']) && (my_strpos($user['location'], "misc.php?action=playeroverview") !== false)) {
+        $user_activity['activity'] = "playeroverview";
     }
     return $user_activity;
 }
