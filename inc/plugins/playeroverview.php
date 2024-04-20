@@ -134,7 +134,7 @@ function playeroverview_install()
 function playeroverview_is_installed()
 {
 
-    global $db, $mybb;
+    global $mybb;
 
     //one of the settings in the settingsgroups
     if (isset($mybb->settings['playeroverview_activate'])) {
@@ -146,7 +146,7 @@ function playeroverview_is_installed()
 //UNINSTALL
 function playeroverview_uninstall()
 {
-    global $db, $cache;
+    global $db;
 
     //delete settings and settinggroups
     $db->delete_query('settings', "name LIKE '%playeroverview%'");
@@ -224,7 +224,7 @@ function playeroverview_deactivate()
 //ADD SETTINGS
 function playeroverview_settings_add()
 {
-    global $db, $mybb, $lang;
+    global $db, $lang;
     $lang->load("playeroverview");
 
     // Avoid duplicated settings
@@ -374,7 +374,6 @@ function playeroverview_settings_add()
 //CREATE DATABASE
 function playeroverview_db_create()
 {
-
     global $db;
 
     //CREATE TABLE IN DATABASE
@@ -394,7 +393,6 @@ function playeroverview_db_create()
 
     }
 
-
     //pid in user table - mark as as_playerid since Account Switcher is necessary for this
     if (!$db->field_exists('as_playerid', 'users')) {
         $db->add_column(
@@ -403,7 +401,6 @@ function playeroverview_db_create()
             'int(10)'
         );
     }
-
 
 }
 
@@ -455,7 +452,7 @@ function playeroverview_css_add()
 function playeroverview_templates_add()
 {
 
-    global $mybb, $db, $cache, $templates, $lang;
+    global $db, $lang;
 
     // Define the template group properties 
     $template_group = array(
@@ -818,24 +815,31 @@ function misc_playeroverview()
     global $db, $mybb, $templates, $theme, $headerinclude, $header, $lang, $footer;
     global $playeroverview_characters_avatar_width, $playeroverview_characters_avatar_height;
     global $playeroverview_playerbit_characters, $playeroverview_playerbit_characters_bit, $playeroverview_playerbit_characters_bit_avatar;
+    global $playeroverview, $playeroverview_playerbit, $playeroverview_playerbit_avatar, $player_onlinestatus, $onlinestatus, $player_away;
 
-    global $charaheader, $charaname, $charalink, $charaavatar;
+    global $charaheader, $charaname, $charalink, $charaavatar, $colspan;
 
     if ($mybb->input['action'] == "playeroverview") {
 
         $lang->load("playeroverview");
 
-        //SETTINGS
+        // Sanitize and assign settings to global variables
+        global $playeroverview_activate, $playeroverview_activate_guest, $playeroverview_show_onlinestatus,
+        $playeroverview_show_away, $playeroverview_avatar, $playeroverview_avatar_default,
+        $playeroverview_avatar_width, $playeroverview_avatar_height, $playeroverview_characters,
+        $playeroverview_characters_avatar_default, $playeroverview_characters_avatar,
+        $playeroverview_characters_avatar_width, $playeroverview_characters_avatar_height;
+
         $playeroverview_activate = intval($mybb->settings['playeroverview_activate']);
         $playeroverview_activate_guest = intval($mybb->settings['playeroverview_activate_guest']);
         $playeroverview_show_onlinestatus = intval($mybb->settings['playeroverview_onlinestatus']);
         $playeroverview_show_away = intval($mybb->settings['playeroverview_away']);
         $playeroverview_avatar = intval($mybb->settings['playeroverview_avatar']);
-        $playeroverview_avatar_default = strval($mybb->settings['playeroverview_avatar_default']);
+        $playeroverview_avatar_default = htmlspecialchars_uni($mybb->settings['playeroverview_avatar_default']);
         $playeroverview_avatar_width = intval($mybb->settings['playeroverview_avatar_width']);
         $playeroverview_avatar_height = intval($mybb->settings['playeroverview_avatar_height']);
         $playeroverview_characters = intval($mybb->settings['playeroverview_characters']);
-        $playeroverview_characters_avatar_default = strval($mybb->settings['playeroverview_characters_avatar_default']);
+        $playeroverview_characters_avatar_default = htmlspecialchars_uni($mybb->settings['playeroverview_characters_avatar_default']);
         $playeroverview_characters_avatar = intval($mybb->settings['playeroverview_characters_avatar']);
         $playeroverview_characters_avatar_width = intval($mybb->settings['playeroverview_characters_avatar_width']);
         $playeroverview_characters_avatar_height = intval($mybb->settings['playeroverview_characters_avatar_height']);
@@ -876,13 +880,13 @@ function misc_playeroverview()
                 $pid = (int) $player['pid'];
 
                 if (empty($playername)) {
-                    $playername = "{$lang->playeroverview_noname}";
+                    $playername = htmlspecialchars_uni($lang->playeroverview_noname);
                 }
 
                 $playertext = htmlspecialchars_uni($player['desc']);
 
                 if (empty($playertext)) {
-                    $playertext = "{$lang->playeroverview_nodesc}";
+                    $playertext = htmlspecialchars_uni($lang->playeroverview_nodesc);
                 }
 
 
@@ -975,16 +979,24 @@ function playeroverview_show_profile()
     global $charaheader, $charaname, $charalink, $charaavatar;
 
     $lang->load("playeroverview");
+    // Sanitize and assign settings to global variables
+    global $playeroverview_activate, $playeroverview_activate_guest, $playeroverview_show_onlinestatus,
+    $playeroverview_show_away, $playeroverview_avatar, $playeroverview_avatar_default,
+    $playeroverview_avatar_width, $playeroverview_avatar_height, $playeroverview_characters,
+    $playeroverview_characters_avatar_default, $playeroverview_characters_avatar,
+    $playeroverview_characters_avatar_width, $playeroverview_characters_avatar_height;
 
     //SETTINGS
     $playeroverview_activate = intval($mybb->settings['playeroverview_activate']);
     $playeroverview_activate_guest = intval($mybb->settings['playeroverview_activate_guest']);
+    $playeroverview_show_onlinestatus = intval($mybb->settings['playeroverview_onlinestatus']);
+    $playeroverview_show_away = intval($mybb->settings['playeroverview_away']);
     $playeroverview_avatar = intval($mybb->settings['playeroverview_avatar']);
-    $playeroverview_avatar_default = strval($mybb->settings['playeroverview_avatar_default']);
+    $playeroverview_avatar_default = htmlspecialchars_uni($mybb->settings['playeroverview_avatar_default']);
     $playeroverview_avatar_width = intval($mybb->settings['playeroverview_avatar_width']);
     $playeroverview_avatar_height = intval($mybb->settings['playeroverview_avatar_height']);
     $playeroverview_characters = intval($mybb->settings['playeroverview_characters']);
-    $playeroverview_characters_avatar_default = strval($mybb->settings['playeroverview_characters_avatar_default']);
+    $playeroverview_characters_avatar_default = htmlspecialchars_uni($mybb->settings['playeroverview_characters_avatar_default']);
     $playeroverview_characters_avatar = intval($mybb->settings['playeroverview_characters_avatar']);
     $playeroverview_characters_avatar_width = intval($mybb->settings['playeroverview_characters_avatar_width']);
     $playeroverview_characters_avatar_height = intval($mybb->settings['playeroverview_characters_avatar_height']);
@@ -1017,11 +1029,11 @@ function playeroverview_show_profile()
         $playertext = htmlspecialchars_uni($player['desc']);
 
         if (empty($playername)) {
-            $playername = "{$lang->playeroverview_noname}";
+            $playername = htmlspecialchars_uni($lang->playeroverview_noname);
         }
 
         if (empty($playertext)) {
-            $playertext = "{$lang->playeroverview_nodesc}";
+            $playertext = htmlspecialchars_uni($lang->playeroverview_nodesc);
         }
 
         //SETTINGS: show avatar?
@@ -1087,16 +1099,24 @@ function playeroverview_show_usercp()
     global $playeravatar_image_html;
 
     $lang->load("playeroverview");
+    // Sanitize and assign settings to global variables
+    global $playeroverview_activate, $playeroverview_activate_guest, $playeroverview_show_onlinestatus,
+    $playeroverview_show_away, $playeroverview_avatar, $playeroverview_avatar_default,
+    $playeroverview_avatar_width, $playeroverview_avatar_height, $playeroverview_characters,
+    $playeroverview_characters_avatar_default, $playeroverview_characters_avatar,
+    $playeroverview_characters_avatar_width, $playeroverview_characters_avatar_height;
 
     //SETTINGS
     $playeroverview_activate = intval($mybb->settings['playeroverview_activate']);
     $playeroverview_activate_guest = intval($mybb->settings['playeroverview_activate_guest']);
+    $playeroverview_show_onlinestatus = intval($mybb->settings['playeroverview_onlinestatus']);
+    $playeroverview_show_away = intval($mybb->settings['playeroverview_away']);
     $playeroverview_avatar = intval($mybb->settings['playeroverview_avatar']);
-    $playeroverview_avatar_default = strval($mybb->settings['playeroverview_avatar_default']);
+    $playeroverview_avatar_default = htmlspecialchars_uni($mybb->settings['playeroverview_avatar_default']);
     $playeroverview_avatar_width = intval($mybb->settings['playeroverview_avatar_width']);
     $playeroverview_avatar_height = intval($mybb->settings['playeroverview_avatar_height']);
     $playeroverview_characters = intval($mybb->settings['playeroverview_characters']);
-    $playeroverview_characters_avatar_default = strval($mybb->settings['playeroverview_characters_avatar_default']);
+    $playeroverview_characters_avatar_default = htmlspecialchars_uni($mybb->settings['playeroverview_characters_avatar_default']);
     $playeroverview_characters_avatar = intval($mybb->settings['playeroverview_characters_avatar']);
     $playeroverview_characters_avatar_width = intval($mybb->settings['playeroverview_characters_avatar_width']);
     $playeroverview_characters_avatar_height = intval($mybb->settings['playeroverview_characters_avatar_height']);
@@ -1530,13 +1550,12 @@ function playeroverview_validate_standard_avatar($playeroverview_avatar_default)
 function playeroverview_set_playeravatar($player)
 {
 
-    global $lang, $db, $mybb;
+    global $lang, $mybb;
 
     $playeravalink = $playeravatar = $playeravatar_image_html = $avaheader = "";
 
     //SETTINGS
-    $playeroverview_avatar = intval($mybb->settings['playeroverview_avatar']);
-    $playeroverview_avatar_default = strval($mybb->settings['playeroverview_avatar_default']);
+    $playeroverview_avatar_default = htmlspecialchars_uni($mybb->settings['playeroverview_avatar_default']);
     $playeroverview_avatar_width = intval($mybb->settings['playeroverview_avatar_width']);
     $playeroverview_avatar_height = intval($mybb->settings['playeroverview_avatar_height']);
 
@@ -1580,7 +1599,7 @@ function playeroverview_set_charaavatar($character)
     $charaavatar = "";
 
     //SETTINGS
-    $playeroverview_characters_avatar_default = strval($mybb->settings['playeroverview_characters_avatar_default']);
+    $playeroverview_characters_avatar_default = htmlspecialchars_uni($mybb->settings['playeroverview_characters_avatar_default']);
 
     //show avatar of character
     $charaavatar = $character['avatar'];
@@ -1711,8 +1730,6 @@ function playeroverview_show_characters($template, $user_playerid, $altbg)
     $lang->load("playeroverview");
 
     //SETTINGS
-    $playeroverview_characters = intval($mybb->settings['playeroverview_characters']);
-    $playeroverview_characters_avatar_default = strval($mybb->settings['playeroverview_characters_avatar_default']);
     $playeroverview_characters_avatar = intval($mybb->settings['playeroverview_characters_avatar']);
     $playeroverview_characters_avatar_width = intval($mybb->settings['playeroverview_characters_avatar_width']);
     $playeroverview_characters_avatar_height = intval($mybb->settings['playeroverview_characters_avatar_height']);
@@ -1728,7 +1745,7 @@ function playeroverview_show_characters($template, $user_playerid, $altbg)
                 ORDER BY u.username ASC
             ");
 
-    $playeroverview_profile_characters_bit = $playeroverview_playerbit_characters_bit = "";
+    $playeroverview_profile_characters_bit = $playeroverview_playerbit_characters_bit = $playeroverview_profile_characters = $playeroverview_playerbit_characters = "";
 
     while ($character = $db->fetch_array($characters)) {
         //ensure correct username link
@@ -1833,10 +1850,9 @@ function playeroverview_edit_patches($ptitle, $pdescription, $psearch, $pbefore)
 {
 
     global $db, $PL, $lang;
-    $PL or require_once PLUGINLIBRARY;
+    $PL || require_once PLUGINLIBRARY;
 
     $pfile = patches_normalize_file("inc/plugins/accountswitcher/as_usercp.php");
-    $dbfile = $db->escape_string($pfile);
 
     $search = patches_normalize_search($psearch);
 
@@ -1896,7 +1912,7 @@ function playeroverview_apply_patches($revert)
 {
 
     global $db, $PL, $lang;
-    $PL or require_once PLUGINLIBRARY;
+    $PL || require_once PLUGINLIBRARY;
 
     $pfile = patches_normalize_file("inc/plugins/accountswitcher/as_usercp.php");
     $dbfile = $db->escape_string($pfile);
@@ -2004,8 +2020,9 @@ function add_menu_playeroverview()
 function debug_to_console($data)
 {
     $output = $data;
-    if (is_array($output))
+    if (is_array($output)) {
         $output = implode(',', $output);
+    }
 
     echo "<script>console.log('Debug Objects: " . $output . "' );</script>";
 }
