@@ -43,3 +43,6 @@ $l['viewing_playeroverview'] = "Sieht sich die <a href=\"misc.php?action=playero
 
 //memberlist
 $l['playeroverview_memberlist'] = "<br /><br /><strong>Gespielt von: </strong> {1}";
+
+//post
+$l['playeroverview_post'] = "<div class=\"player_post_box\"><strong>Gespielt von: </strong> {1}</div>";

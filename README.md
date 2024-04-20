@@ -13,7 +13,7 @@ Wird ein Account in den Accountswitcher Einstellungen von einem anderen Account 
 - Version 1.0
 
 ### Geplante Erweiterungen: 
-- Spielername / Beschreibung / Avatar in Posts
+- Derzeit nichts in Planung
 
 ### Anmerkungen / Einschränkungen:
 - Wenn ihr den Spielernamen bisher über Profilfelder geregelt habt, dann würde ich vorschlagen, das Profilfeld für die erste Zeit bestehen zu lassen, bis die Spieler ihre Einträge manuell übertragen haben. Derzeit gibt es noch keine automatische Übertragungen.
@@ -22,7 +22,10 @@ Wird ein Account in den Accountswitcher Einstellungen von einem anderen Account 
 # Voraussetzungen
 - Der <a href="https://www.mybb.de/erweiterungen/18x/plugins-verschiedenes/enhanced-account-switcher/" target="_blank">Accountswitcher</a> von doylecc <b>muss</b> installiert sein. 
 - Das <a href="https://github.com/frostschutz/MyBB-Patches" target="_blank">Patches-Plugin</a> von frostschutz <b>muss</b> installiert sein. 
-- Das Plugin wurde für PHP 8 programmiert. 
+- Das Plugin wurde für PHP 8 programmiert.
+
+# Sicherheit
+- Der Code des Plugins wurde mittels SonarCloud auf technische Schwächen geprüft und alle Schwächen beseitigt. Cross-Site-Scripting ist nicht möglich. Auf Nachfrage werden gerne Details zu der Source Code Analyse (SCA) herausgegeben. 
 
 # Datenbank-Änderungen
 ### Hinzugefügte Tabelle: 
@@ -100,6 +103,12 @@ Alle neuen Templates sind in der Template-Gruppe "Player Overview Templates" zu 
 
 ### - memberlist_user - 
 - {$playeroverview_menu}
+
+### - postbit - 
+- {$post['player']
+
+### - postbit_classic -
+- {$post['player']
 
 # Neue CSS
 - playeroverview.css

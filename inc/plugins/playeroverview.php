@@ -61,6 +61,7 @@ $plugins->add_hook('member_profile_end', 'playeroverview_show_profile', 10); //s
 $plugins->add_hook('usercp_profile_start', 'playeroverview_show_usercp'); //show in usercp
 $plugins->add_hook('usercp_do_profile_start', 'playeroverview_edit_usercp'); //edit in usercp
 $plugins->add_hook("memberlist_user", "playeroverview_show_memberlist"); //show in memberlist
+$plugins->add_hook("postbit", "playeroverview_show_post"); //show in post
 
 //REGISTER/UNREGISTER USER FUNCTIONS
 $plugins->add_hook('member_do_register_end', 'playeroverview_user_created'); //create player in table when new user is created
@@ -196,7 +197,11 @@ function playeroverview_activate()
     find_replace_templatesets('header', '#{\$menu_memberlist}#', "{\$menu_memberlist}\n						{\$playeroverview_menu}");
 
     //memberlist
-    find_replace_templatesets('memberlist_user', '#</span>#', "</span>'\n		{\$player_text}");
+    find_replace_templatesets('memberlist_user', '#</span>#', "</span>\n		{\$player_text}");
+
+    //postbit
+    find_replace_templatesets('postbit_classic', '#{\$post\[\'user_details\'\]}#', '{$post[\'user_details\']}{$post[\'player\']}');
+    find_replace_templatesets('postbit', '#{\$post\[\'user_details\'\]}#', '{$post[\'user_details\']}{$post[\'player\']}');
 
 
     //apply patches
@@ -223,6 +228,11 @@ function playeroverview_deactivate()
 
     //memberlist
     find_replace_templatesets('memberlist_user', '#(\n?)(\t*){\$player_text}(\t*)(\n?)#', '', 0);
+
+    //postbit
+    find_replace_templatesets('postbit_classic', '#{\$post\[\'player\'\]}#', '', 0);
+    find_replace_templatesets('postbit', '#{\$post\[\'player\'\]}#', '', 0);
+
 
     //delete patches
     playeroverview_delete_patches();
@@ -427,9 +437,18 @@ function playeroverview_css_add()
             gap: 5px;
             margin: 5px;
         }
-        
+                
         .playeroverview img {
-                object-fit: cover;
+            object-fit: cover;
+        }
+        
+        .player_post_box {
+            border-top: 1px dotted #ccc;
+            margin: 6px 0 0 0;
+            padding: 6px 6px 3px 6px;
+            float: none;
+            font-size: 11px;
+            line-height: 1.3;
         }',
         'cachefile' => $db->escape_string(str_replace('/', '', 'playeroverview.css')),
         'lastmodified' => TIME_NOW
@@ -520,12 +539,12 @@ function playeroverview_templates_add()
 	<td class="{$altbg}">
 		{$playername}
 		{$player_onlinestatus}
-        {$player_away}
+		{$player_away}
 	</td>
 	<td class="{$altbg}">{$playertext}</td>
 	<td class="{$altbg}">{$lastactive_date}</td>
 	<td class="{$altbg}">{$regdate_date}</td>
-    {$playeroverview_playerbit_characters}
+    {$playeroverview_characters_bit}
 </tr>';
 
     $insert_array = array(
@@ -553,7 +572,7 @@ function playeroverview_templates_add()
 
     //playeroverview_playerbit_characters
     $template_playeroverview_playerbit_characters = '<td class="{$altbg}">
-    {$playeroverview_playerbit_characters_bit}
+    {$characters_bit}
 </td>';
 
     $insert_array = array(
@@ -567,7 +586,7 @@ function playeroverview_templates_add()
 
     //playeroverview_playerbit_characters_bit
     $template_playeroverview_playerbit_characters_bit = '<div class="character_box">
-	{$playeroverview_playerbit_characters_bit_avatar}
+	{$avatar_bit}
 	<div>{$charalink}</div>
 </div>';
 
@@ -606,13 +625,13 @@ function playeroverview_templates_add()
     $db->insert_query('templates', $insert_array);
 
     //playeroverview_playerbit_away
-    $template_playeroverview_playerbit_away = '<br />
-      <div><strong>{$lang->playeroverview_away_note}</strong></div>
-      <em>{$lang->playeroverview_away_reason} {$awayreason}</em>
-      <div class="smalltext">
-          {$lang->playeroverview_away_since} {$awaydate} <br />
-          {$lang->playeroverview_away_returns} {$returndate}
-      </div>';
+    $template_playeroverview_playerbit_away = '<br /> 
+    <div><strong>{$lang->playeroverview_away_note}</strong></div>
+    <em>{$lang->playeroverview_away_reason} {$away[\'awayreason\']}</em>
+    <div class="smalltext">
+        {$lang->playeroverview_away_since} {$away[\'awaydate\']} <br /> 
+        {$lang->playeroverview_away_returns} {$away[\'returndate\']}
+    </div>';
 
     $insert_array = array(
         'title' => 'playeroverview_playerbit_away',
@@ -677,10 +696,10 @@ function playeroverview_templates_add()
     <td><span class="smalltext">{$profile_avatar_text}</span></td>
 </tr>
 <tr>
-	<td><input type="text" name="playeroverview_avatar" class="textbox" value="{$playeravalink}" /></td>
+	<td><input type="text" name="playeroverview_avatar" class="textbox" value="{$playeravavalues[\'playeravalink\']}" /></td>		
 </tr>
 <tr>
-	<td>{$playeravatar_image_html}</td>
+	<td>{$playeravavalues[\'playeravatar_image_html\']}</td>
 </tr>';
 
     $insert_array = array(
@@ -723,7 +742,7 @@ function playeroverview_templates_add()
             <td class="trow1">{$regdate_date}</td>
         </tr>
         
-        {$playeroverview_profile_characters}
+        {$playeroverview_characters_bit}
         
     </table>';
 
@@ -756,7 +775,7 @@ function playeroverview_templates_add()
     //playeroverview_profile_characters
     $template_playeroverview_profile_characters = '<tr>
 	<td class="trow2"><strong>{$lang->playeroverview_charas}</strong></td>
-	<td class="trow2">{$playeroverview_profile_characters_bit}</td>
+	<td class="trow2">{$characters_bit}</td>
 </tr>';
 
     $insert_array = array(
@@ -770,7 +789,7 @@ function playeroverview_templates_add()
 
     //playeroverview_profile_characters_bit
     $template_playeroverview_profile_characters_bit = '<div class="character_box">
-	{$playeroverview_profile_characters_bit_avatar}
+	{$avatar_bit}
 	<div>{$charalink}</div>
 </div>';
 
@@ -1022,20 +1041,52 @@ function playeroverview_edit_usercp()
 
 }
 
-function playeroverview_show_memberlist($user){
+//SHOW IN MEMBERLIST
+function playeroverview_show_memberlist($user)
+{
 
-    global $db, $mybb, $lang;
+    global $lang;
     global $player_text;
 
     $lang->load("playeroverview");
 
-    debug_to_console($user['username']);
-
-    //get player
+    //get player and text
     $player = get_player_data($user['uid']);
+
+    if(empty($player['name'])){
+        $player['name'] = $lang->playeroverview_noname;
+    }
+
     $player_text = $lang->sprintf($lang->playeroverview_memberlist, $player['name']);
 
 }
+
+//SHOW IN POST
+function playeroverview_show_post(&$post)
+{
+
+    global $db, $mybb, $lang;
+
+    $lang->load("playeroverview");
+
+    $post['player'] = "";
+
+    if ($post['uid'] > 0) {
+        //get player and text
+        $player = get_player_data($post['uid']);
+
+        if(empty($player['name'])){
+            $player['name'] = $lang->playeroverview_noname;
+        }
+
+        $post['player'] = $lang->sprintf($lang->playeroverview_post, $player['name']);
+
+    }
+
+    return $post;
+
+}
+
 
 /************************ ADDITIONAL FUNCTIONS WHEN USER CREATED / DELETED ************************/
 
