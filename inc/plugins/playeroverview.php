@@ -255,15 +255,15 @@ function playeroverview_install()
     rebuild_settings();
 
     //CREATE TABLE IN DATABASE
-    //pid			player id - PRIMARY KEY
-    //name		    player name			
-    //desc		    player description
-    //avatar_link	player avatar
-
+    //pid - player id - PRIMARY KEY
+    //name - player name
+    //desc - player description
+    //avatar_link- player avatar
+ 
     if (!$db->table_exists('players')) {
         if ($db->engine == 'mysql' || $db->engine == 'mysqli') {
             $db->query("CREATE TABLE `" . TABLE_PREFIX . "players` (
-                `pid`	int(10) UNSIGNED NOT NULL auto_increment,
+                `pid` int(10) UNSIGNED NOT NULL auto_increment,
                 `name` varchar(255) NOT NULL,
                 `desc` varchar(2500) NOT NULL,
                 `avatar_link` varchar(255) NOT NULL,
@@ -390,7 +390,7 @@ function playeroverview_css_add()
 {
     global $db;
 
-    // CSS	
+    // CSS
     $css = array(
         'name' => 'playeroverview.css',
         'tid' => 1,
@@ -617,7 +617,7 @@ function playeroverview_templates_add()
         </tr>
 		<tr>
 			<td><input type="text" name="playeroverview_name" class="textbox" value="{$playername}" /></td>
-		</tr>	
+		</tr>
 		<tr>
 			<td>{$lang->playeroverview_desc}:</td>
 		</tr>
@@ -626,7 +626,7 @@ function playeroverview_templates_add()
         </tr>
 		<tr>
 			<td><textarea name="playeroverview_desc" rows="6" cols="30" style="width: 95%">{$playertext}</textarea></td>
-		</tr>	
+		</tr>
 		
 		{$playeroverview_ucp_avatar}
 		
@@ -651,7 +651,7 @@ function playeroverview_templates_add()
     <td><span class="smalltext">{$profile_avatar_text}</span></td>
 </tr>
 <tr>
-	<td><input type="text" name="playeroverview_avatar" class="textbox" value="{$playeravalink}" /></td>		
+	<td><input type="text" name="playeroverview_avatar" class="textbox" value="{$playeravalink}" /></td>
 </tr>
 <tr>
 	<td>{$playeravatar_image_html}</td>
