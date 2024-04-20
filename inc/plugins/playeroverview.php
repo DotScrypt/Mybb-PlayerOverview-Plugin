@@ -852,12 +852,17 @@ function misc_playeroverview()
         $player_away = $playeroverview_playerbit_avatar = $player_onlinestatus = $playeroverview_profile_characters = "";
 
         // Sanitize player name and description
-        $playername = !empty($player['name']) ? htmlspecialchars_uni($player['name']) : htmlspecialchars_uni($lang->playeroverview_noname);
         $playertext = !empty($player['desc']) ? htmlspecialchars_uni($player['desc']) : htmlspecialchars_uni($lang->playeroverview_nodesc);
 
-        //show if user is away
+        if (empty($player['name'])) {
+            $playername = htmlspecialchars_uni($lang->playeroverview_noname);
+            $lang->playeroverview_away_note = $lang->playeroverview_away_noname;
+        } else {
+            $playername = htmlspecialchars_uni($player['name']);
+            $lang->playeroverview_away_note = $lang->sprintf($lang->playeroverview_away_note, $player['name']);
+        }
+
         $away = playeroverview_away($player);
-        $lang->playeroverview_away_note = empty($player['name']) ? $lang->playeroverview_away_noname : $lang->sprintf($lang->playeroverview_away_note, $player['name']);
 
         if ($playeroverview_settings['show_away'] && $away['is_away']) {
             eval ("\$player_away = \"" . $templates->get("playeroverview_playerbit_away") . "\";");
@@ -938,7 +943,7 @@ function playeroverview_show_profile()
 
         // Check if user is guest
         $playeroverview_profile = ($mybb->user['uid'] == 0 && $playeroverview_settings['activate_guest'] != 1) ? "" : eval ($templates->render("playeroverview_profile"));
-        
+
     }
 }
 
