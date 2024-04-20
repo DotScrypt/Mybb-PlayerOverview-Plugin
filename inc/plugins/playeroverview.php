@@ -817,94 +817,91 @@ function misc_playeroverview()
     if ($mybb->input['action'] == "playeroverview") {
 
         $lang->load("playeroverview");
-
         $playeroverview_settings = get_playeroverview_settings();
-
         $colspan = $playeroverview_settings['avatar'] + $playeroverview_settings['characters'] + 4;
 
-        //SETTINGS: show overview?
-        if ($playeroverview_settings['activate'] == 1) {
-
-            // NAVIGATION
-            add_breadcrumb($lang->playeroverview_title, "misc.php?action=playeroverview");
-
-            $playeroverview_playerbit = "";
-
-            //SETTINGS: show overview for guests?
-            if ($playeroverview_settings['activate_guest'] != 1) {
-                error_no_permission();
-            }
-
-            //get all players
-            $players = $db->query("
-			SELECT *
-			FROM " . TABLE_PREFIX . "players p
-			ORDER BY p.name ASC
-            ");
-
-            while ($player = $db->fetch_array($players)) {
-                //variables
-                $altbg = alt_trow();
-
-                $player_away = $playeroverview_playerbit_avatar = $player_onlinestatus = "";
-
-                //PLAYER INFO - name, text, avatar
-                // Sanitize player name and description
-                $playername = htmlspecialchars_uni($player['name'] ?? $lang->playeroverview_noname);
-                $playertext = htmlspecialchars_uni($player['desc'] ?? $lang->playeroverview_nodesc);
-
-                //show if user is away
-                if ($playeroverview_settings['show_away']) {
-                    $away = playeroverview_away($player);
-
-                    if ($away['is_away']) {
-                        $lang->playeroverview_away_note = empty($player['name']) ? $lang->playeroverview_away_noname : $lang->sprintf($lang->playeroverview_away_note, $player['name']);
-                        $awaydate = $away['awaydate'];
-                        $awayreason = $away['awayreason'];
-                        $returndate = $away['returndate'];
-
-                        eval ("\$player_away = \"" . $templates->get("playeroverview_playerbit_away") . "\";");
-                    }
-                }
-
-                //SETTINGS: show avatar?
-                if ($playeroverview_settings['avatar'] == 1) {
-                    //show avatar of player
-
-                    $playeravavalues = playeroverview_set_playeravatar($player);
-
-                    $avaheader = $playeravavalues['avaheader'];
-                    $playeravatar = $playeravavalues['playeravatar'];
-                    $playeravatar_image_html = $playeravavalues['playeravatar_image_html'];
-                    $playeravalink = $playeravavalues['playeravalink'];
-
-                    eval ("\$playeroverview_playerbit_avatar = \"" . $templates->get("playeroverview_playerbit_avatar") . "\";");
-                }
-
-                // Show characters if enabled
-                $playeroverview_profile_characters = ($playeroverview_settings['characters'] == 1) ? playeroverview_show_characters("misc", (int) $player['pid'], $altbg) : "";
-
-                //show online status
-                if ($playeroverview_settings['show_onlinestatus']) {
-                    $onlinestatus = playeroverview_onlinestatus($player);
-                    eval ("\$player_onlinestatus = \"" . $templates->get("playeroverview_playerbit_onlinestatus") . "\";");
-                }
-
-                // Get additional player info based on characters
-                $additional_info = get_additional_player_info((int) $player['pid']);
-
-                $lastactive_date = $additional_info['lastactive_date'];
-                $regdate_date = $additional_info['regdate_date'];
-
-                eval ("\$playeroverview_playerbit .= \"" . $templates->get("playeroverview_playerbit") . "\";");
-            }
-
-            eval ("\$page  = \"" . $templates->get("playeroverview") . "\";");
-            output_page($page);
-
-        } else {
+        // Check if player overview is activated
+        if ($playeroverview_settings['activate'] != 1) {
             error($lang->playeroverview_inactive);
         }
+
+        // Check permission for guests
+        if ($playeroverview_settings['activate_guest'] != 1 && $mybb->user['uid'] == 0) {
+            error_no_permission();
+        }
+
+        // NAVIGATION
+        add_breadcrumb($lang->playeroverview_title, "misc.php?action=playeroverview");
+
+        $playeroverview_playerbit = "";
+
+         // Get players
+         $players = $db->simple_select("players", "*", "", array("order_by" => "name ASC"));
+
+         // Prepare variables
+         $playeroverview_playerbit = "";
+
+         // Process each player
+
+        while ($player = $db->fetch_array($players)) {
+            //variables
+            $altbg = alt_trow();
+
+            $player_away = $playeroverview_playerbit_avatar = $player_onlinestatus = "";
+
+            // Sanitize player name and description
+            $playername = htmlspecialchars_uni($player['name'] ?? $lang->playeroverview_noname);
+            $playertext = htmlspecialchars_uni($player['desc'] ?? $lang->playeroverview_nodesc);
+
+            //show if user is away
+            if ($playeroverview_settings['show_away']) {
+                $away = playeroverview_away($player);
+
+                if ($away['is_away']) {
+                    $lang->playeroverview_away_note = empty($player['name']) ? $lang->playeroverview_away_noname : $lang->sprintf($lang->playeroverview_away_note, $player['name']);
+                    $awaydate = $away['awaydate'];
+                    $awayreason = $away['awayreason'];
+                    $returndate = $away['returndate'];
+
+                    eval ("\$player_away = \"" . $templates->get("playeroverview_playerbit_away") . "\";");
+                }
+            }
+
+            //SETTINGS: show avatar?
+            if ($playeroverview_settings['avatar'] == 1) {
+                //show avatar of player
+
+                $playeravavalues = playeroverview_set_playeravatar($player);
+
+                $avaheader = $playeravavalues['avaheader'];
+                $playeravatar = $playeravavalues['playeravatar'];
+                $playeravatar_image_html = $playeravavalues['playeravatar_image_html'];
+                $playeravalink = $playeravavalues['playeravalink'];
+
+                eval ("\$playeroverview_playerbit_avatar = \"" . $templates->get("playeroverview_playerbit_avatar") . "\";");
+            }
+
+            // Show characters if enabled
+            $playeroverview_profile_characters = ($playeroverview_settings['characters'] == 1) ? playeroverview_show_characters("misc", (int) $player['pid'], $altbg) : "";
+
+            //show online status
+            if ($playeroverview_settings['show_onlinestatus']) {
+                $onlinestatus = playeroverview_onlinestatus($player);
+                eval ("\$player_onlinestatus = \"" . $templates->get("playeroverview_playerbit_onlinestatus") . "\";");
+            }
+
+            // Get additional player info based on characters
+            $additional_info = get_additional_player_info((int) $player['pid']);
+
+            $lastactive_date = $additional_info['lastactive_date'];
+            $regdate_date = $additional_info['regdate_date'];
+
+            eval ("\$playeroverview_playerbit .= \"" . $templates->get("playeroverview_playerbit") . "\";");
+        }
+
+        eval ("\$page  = \"" . $templates->get("playeroverview") . "\";");
+        output_page($page);
+
     }
 }
 
