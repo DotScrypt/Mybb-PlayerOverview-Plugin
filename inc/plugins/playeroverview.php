@@ -1572,6 +1572,8 @@ function playeroverview_show_characters($template, $user_playerid, $altbg)
 
     $list_template = ($template == "profile") ? "playeroverview_profile_characters" : "playeroverview_playerbit_characters";
     eval ("\$playeroverview_characters_bit = \"" . $templates->get($list_template) . "\";");
+
+    return true;
 }
 
 
@@ -1608,7 +1610,7 @@ function get_playeroverview_settings()
     global $mybb;
 
     // Get settings
-    $playeroverview_settings = array(
+    return array(
         'activate' => intval($mybb->settings['playeroverview_activate']),
         'activate_guest' => intval($mybb->settings['playeroverview_activate_guest']),
         'show_onlinestatus' => intval($mybb->settings['playeroverview_onlinestatus']),
@@ -1624,7 +1626,6 @@ function get_playeroverview_settings()
         'characters_avatar_height' => intval($mybb->settings['playeroverview_characters_avatar_height'])
     );
 
-    return $playeroverview_settings;
 }
 
 
