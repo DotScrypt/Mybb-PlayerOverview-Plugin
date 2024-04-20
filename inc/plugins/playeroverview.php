@@ -226,7 +226,7 @@ function playeroverview_settings_add()
 {
     global $db, $mybb, $lang;
     $lang->load("playeroverview");
-    
+
     // Avoid duplicated settings
     $query_setgr = $db->simple_select("settinggroups", "gid", "name='playeroverview_settings'");
     $ams = $db->fetch_array($query_setgr);
@@ -372,7 +372,8 @@ function playeroverview_settings_add()
 }
 
 //CREATE DATABASE
-function playeroverview_db_create() {
+function playeroverview_db_create()
+{
 
     global $db;
 
@@ -382,19 +383,18 @@ function playeroverview_db_create() {
     //desc - player description
     //avatar_link- player avatar
 
-    if (!$db->table_exists('players')) {
-        if ($db->engine == 'mysql' || $db->engine == 'mysqli') {
-            $db->query("CREATE TABLE `" . TABLE_PREFIX . "players` (
+    if (!$db->table_exists('players') && ($db->engine == 'mysql' || $db->engine == 'mysqli')) {
+        $db->query("CREATE TABLE `" . TABLE_PREFIX . "players` (
                 `pid` int(10) UNSIGNED NOT NULL auto_increment,
                 `name` varchar(255) NOT NULL,
                 `desc` varchar(2500) NOT NULL,
                 `avatar_link` varchar(255) NOT NULL,
                 PRIMARY KEY(`pid`)
                 ) ENGINE=MyISAM" . $db->build_create_table_collation());
-        }
+
     }
 
-    
+
     //pid in user table - mark as as_playerid since Account Switcher is necessary for this
     if (!$db->field_exists('as_playerid', 'users')) {
         $db->add_column(
