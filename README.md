@@ -96,6 +96,9 @@ Alle neuen Templates sind in der Template-Gruppe "Player Overview Templates" zu 
 - {$playeroverview_ucp} eingefügt
 
 ### - header - 
+- {$player_text}
+
+### - memberlist_user - 
 - {$playeroverview_menu}
 
 # Neue CSS

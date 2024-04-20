@@ -40,3 +40,6 @@ $l['playeroverview_avalink_dimensions_error'] = "Das Bild, das du als Spielerava
 
 //location for who's online
 $l['viewing_playeroverview'] = "Sieht sich die <a href=\"misc.php?action=playeroverview\">\"Spieler-Übersicht\" </a> an";
+
+//memberlist
+$l['playeroverview_memberlist'] = "<br /><br /><strong>Gespielt von: </strong> {1}";

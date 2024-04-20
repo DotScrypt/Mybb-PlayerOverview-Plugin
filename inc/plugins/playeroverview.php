@@ -52,12 +52,15 @@ if (my_strpos($_SERVER['PHP_SELF'], 'usercp.php')) {
     }
     $templatelist .= 'playeroverview_ucp, playeroverview_ucp_avatar';
 }
+//MENU
+$plugins->add_hook('global_intermediate', 'add_menu_playeroverview');
 
 //HOOKS FOR USER CP, MISC, MEMBER PROFILE
 $plugins->add_hook('misc_start', 'misc_playeroverview'); //we are using misc to show the playeroverview
 $plugins->add_hook('member_profile_end', 'playeroverview_show_profile', 10); //show in profile
 $plugins->add_hook('usercp_profile_start', 'playeroverview_show_usercp'); //show in usercp
 $plugins->add_hook('usercp_do_profile_start', 'playeroverview_edit_usercp'); //edit in usercp
+$plugins->add_hook("memberlist_user", "playeroverview_show_memberlist"); //show in memberlist
 
 //REGISTER/UNREGISTER USER FUNCTIONS
 $plugins->add_hook('member_do_register_end', 'playeroverview_user_created'); //create player in table when new user is created
@@ -70,8 +73,6 @@ $plugins->add_hook('as_usercp_attachother', 'playeroverview_asusercp_attachother
 $plugins->add_hook('as_usercp_detachother', 'playeroverview_asusercp_detachother'); //as_ucp action: Detach current user from master
 
 //SETUP LOCATION FOR WHO'S ONLINE LIST
-
-$plugins->add_hook('global_intermediate', 'add_menu_playeroverview');
 $plugins->add_hook("fetch_wol_activity_end", "playeroverview_online_activity");
 $plugins->add_hook("build_friendly_wol_location_end", "playeroverview_online_location");
 
@@ -194,6 +195,9 @@ function playeroverview_activate()
     //header
     find_replace_templatesets('header', '#{\$menu_memberlist}#', "{\$menu_memberlist}\n						{\$playeroverview_menu}");
 
+    //memberlist
+    find_replace_templatesets('memberlist_user', '#</span>#', "</span>'\n		{\$player_text}");
+
 
     //apply patches
     playeroverview_as_patches();
@@ -216,6 +220,9 @@ function playeroverview_deactivate()
 
     //header
     find_replace_templatesets('header', '#(\n?)(\t*){\$playeroverview_menu}(\t*)(\n?)#', '', 0);
+
+    //memberlist
+    find_replace_templatesets('memberlist_user', '#(\n?)(\t*){\$player_text}(\t*)(\n?)#', '', 0);
 
     //delete patches
     playeroverview_delete_patches();
@@ -1015,6 +1022,20 @@ function playeroverview_edit_usercp()
 
 }
 
+function playeroverview_show_memberlist($user){
+
+    global $db, $mybb, $lang;
+    global $player_text;
+
+    $lang->load("playeroverview");
+
+    debug_to_console($user['username']);
+
+    //get player
+    $player = get_player_data($user['uid']);
+    $player_text = $lang->sprintf($lang->playeroverview_memberlist, $player['name']);
+
+}
 
 /************************ ADDITIONAL FUNCTIONS WHEN USER CREATED / DELETED ************************/
 
