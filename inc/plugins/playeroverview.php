@@ -181,7 +181,7 @@ function playeroverview_uninstall()
 function playeroverview_activate()
 {
     global $db, $mybb;
-    require MYBB_ROOT . "/inc/adminfunctions_templates.php";
+    require_once MYBB_ROOT . "/inc/adminfunctions_templates.php";
 
     //add templates that on activate
     //member_profile
@@ -204,7 +204,7 @@ function playeroverview_activate()
 function playeroverview_deactivate()
 {
     global $db;
-    require MYBB_ROOT . "/inc/adminfunctions_templates.php";
+    require_once MYBB_ROOT . "/inc/adminfunctions_templates.php";
 
     //delete templates that are input when activated
     //member_profile
