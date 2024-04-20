@@ -17,7 +17,7 @@ Wird ein Account in den Accountswitcher Einstellungen von einem anderen Account 
 
 ### Anmerkungen / Einschränkungen:
 - Wenn ihr den Spielernamen bisher über Profilfelder geregelt habt, dann würde ich vorschlagen, das Profilfeld für die erste Zeit bestehen zu lassen, bis die Spieler ihre Einträge manuell übertragen haben. Derzeit gibt es noch keine automatische Übertragungen.
-- Derzeit ist es noch nicht angesehen, den Spielernamen in den Beiträgen anzeigen zu können, das wird aber mit zukünftigen Versionen kommen. Sobald das kommt, ist das eigene Profilfeld mit dem Spielernamen obsolet. 
+- Ich habe das Plugin auf 3 Foren getestet, die allerdings alle noch in relativ "Originalzustand" sind mit wenigen Users. Falls euch beim Installieren auf euer Forum etwas auffällt, wäre ich froh um Rückmeldung. Der Code ist zwar gründlich getestet, aber wie immer gilt - zieht euch ein Backup des Forums bevor ihr ein Plugin installiert. 
 
 # Voraussetzungen
 - Der <a href="https://www.mybb.de/erweiterungen/18x/plugins-verschiedenes/enhanced-account-switcher/" target="_blank">Accountswitcher</a> von doylecc <b>muss</b> installiert sein. 
