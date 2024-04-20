@@ -111,6 +111,122 @@ function playeroverview_install()
     global $db, $mybb, $lang;
     $lang->load("playeroverview");
 
+    //ADD SETTINGS
+    playeroverview_settings_add();
+
+    //CREATE DATABASE AND NECESSARY FIELDS
+    playeroverview_db_create();
+
+    //INSERT CSS
+    playeroverview_css_add();
+
+    //INSERT TEMPLATES - in all template sets! sid = -2 to install everywhere!
+    playeroverview_templates_add();
+
+    //INITIALIZE VALUES OF EXISTING USERS
+    playeroverview_initialize();
+
+    // Return TRUE to indicate successful installation
+    return TRUE;
+}
+
+//IS INSTALLED
+function playeroverview_is_installed()
+{
+
+    global $db, $mybb;
+
+    //one of the settings in the settingsgroups
+    if (isset($mybb->settings['playeroverview_activate'])) {
+        return TRUE;
+    }
+    return FALSE;
+}
+
+//UNINSTALL
+function playeroverview_uninstall()
+{
+    global $db, $cache;
+
+    //delete settings and settinggroups
+    $db->delete_query('settings', "name LIKE '%playeroverview%'");
+    $db->delete_query('settinggroups', "name LIKE '%playeroverview%'");
+
+    //delete templates
+    $db->delete_query("templates", "title LIKE '%playeroverview%'");
+
+    //delete template group
+    $db->delete_query("templategroups", "prefix LIKE '%playeroverview%'");
+
+    //delete css
+    require_once MYBB_ADMIN_DIR . "inc/functions_themes.php";
+    $db->delete_query("themestylesheets", "name = 'playeroverview.css'");
+    $query = $db->simple_select("themes", "tid");
+    while ($theme = $db->fetch_array($query)) {
+        update_theme_stylesheet_list($theme['tid']);
+    }
+
+    //delete field in user table (DB)
+    if ($db->field_exists("as_playerid", "users")) {
+        $db->drop_column("users", "as_playerid");
+    }
+
+    //delete DB
+    $db->query("DROP TABLE " . TABLE_PREFIX . "players");
+
+    rebuild_settings();
+}
+
+//ACTIVATE
+function playeroverview_activate()
+{
+    global $db, $mybb;
+    require MYBB_ROOT . "/inc/adminfunctions_templates.php";
+
+    //add templates that on activate
+    //member_profile
+    find_replace_templatesets('member_profile', '#{\$contact_details}#', "{\$contact_details}\n            {\$playeroverview_profile}");
+    find_replace_templatesets('member_profile', '#(\n*)(\s*){\$profile_attached}(\n*)#', '', 0); //remove {$profile_attached} since charas are listed in playeroverview
+
+    //usercp_profile
+    find_replace_templatesets('usercp_profile', '#{\$awaysection}#', "{\$awaysection}\n{\$playeroverview_ucp}");
+
+    //header
+    find_replace_templatesets('header', '#{\$menu_memberlist}#', "{\$menu_memberlist}\n						{\$playeroverview_menu}");
+
+
+    //apply patches
+    playeroverview_as_patches();
+
+}
+
+//DEACTIVATE
+function playeroverview_deactivate()
+{
+    global $db;
+    require MYBB_ROOT . "/inc/adminfunctions_templates.php";
+
+    //delete templates that are input when activated
+    //member_profile
+    find_replace_templatesets('member_profile', '#(\n*)(\s*){\$playeroverview_profile}(\n*)#', '', 0);
+    find_replace_templatesets('member_profile', '#{\$profilefields}#', "{\$profilefields}\n            {\$profile_attached}");//add {$profile_attached} back
+
+    //usercp_profile
+    find_replace_templatesets('usercp_profile', '#(\n*)(\t*){\$playeroverview_ucp}(\t*)(\n?)#', '', 0);
+
+    //header
+    find_replace_templatesets('header', '#(\n?)(\t*){\$playeroverview_menu}(\t*)(\n?)#', '', 0);
+
+    //delete patches
+    playeroverview_delete_patches();
+}
+
+//ADD SETTINGS
+function playeroverview_settings_add()
+{
+    global $db, $mybb, $lang;
+    $lang->load("playeroverview");
+    
     // Avoid duplicated settings
     $query_setgr = $db->simple_select("settinggroups", "gid", "name='playeroverview_settings'");
     $ams = $db->fetch_array($query_setgr);
@@ -253,13 +369,19 @@ function playeroverview_install()
     }
 
     rebuild_settings();
+}
+
+//CREATE DATABASE
+function playeroverview_db_create() {
+
+    global $db;
 
     //CREATE TABLE IN DATABASE
     //pid - player id - PRIMARY KEY
     //name - player name
     //desc - player description
     //avatar_link- player avatar
- 
+
     if (!$db->table_exists('players')) {
         if ($db->engine == 'mysql' || $db->engine == 'mysqli') {
             $db->query("CREATE TABLE `" . TABLE_PREFIX . "players` (
@@ -272,6 +394,7 @@ function playeroverview_install()
         }
     }
 
+    
     //pid in user table - mark as as_playerid since Account Switcher is necessary for this
     if (!$db->field_exists('as_playerid', 'users')) {
         $db->add_column(
@@ -281,108 +404,7 @@ function playeroverview_install()
         );
     }
 
-    //INSERT CSS
-    playeroverview_css_add();
 
-    //INSERT TEMPLATES - in all template sets! sid = -2 to install everywhere!
-    playeroverview_templates_add();
-
-    //INITIALIZE VALUES OF EXISTING USERS
-    playeroverview_initialize();
-
-    // Return TRUE to indicate successful installation
-    return TRUE;
-}
-
-//IS INSTALLED
-function playeroverview_is_installed()
-{
-
-    global $db, $mybb;
-
-    //one of the settings in the settingsgroups
-    if (isset($mybb->settings['playeroverview_activate'])) {
-        return TRUE;
-    }
-    return FALSE;
-}
-
-//UNINSTALL
-function playeroverview_uninstall()
-{
-    global $db, $cache;
-
-    //delete settings and settinggroups
-    $db->delete_query('settings', "name LIKE '%playeroverview%'");
-    $db->delete_query('settinggroups', "name LIKE '%playeroverview%'");
-
-    //delete templates
-    $db->delete_query("templates", "title LIKE '%playeroverview%'");
-
-    //delete template group
-    $db->delete_query("templategroups", "prefix LIKE '%playeroverview%'");
-
-    //delete css
-    require_once MYBB_ADMIN_DIR . "inc/functions_themes.php";
-    $db->delete_query("themestylesheets", "name = 'playeroverview.css'");
-    $query = $db->simple_select("themes", "tid");
-    while ($theme = $db->fetch_array($query)) {
-        update_theme_stylesheet_list($theme['tid']);
-    }
-
-    //delete field in user table (DB)
-    if ($db->field_exists("as_playerid", "users")) {
-        $db->drop_column("users", "as_playerid");
-    }
-
-    //delete DB
-    $db->query("DROP TABLE " . TABLE_PREFIX . "players");
-
-    rebuild_settings();
-}
-
-//ACTIVATE
-function playeroverview_activate()
-{
-    global $db, $mybb;
-    require MYBB_ROOT . "/inc/adminfunctions_templates.php";
-
-    //add templates that on activate
-    //member_profile
-    find_replace_templatesets('member_profile', '#{\$contact_details}#', "{\$contact_details}\n            {\$playeroverview_profile}");
-    find_replace_templatesets('member_profile', '#(\n*)(\s*){\$profile_attached}(\n*)#', '', 0); //remove {$profile_attached} since charas are listed in playeroverview
-
-    //usercp_profile
-    find_replace_templatesets('usercp_profile', '#{\$awaysection}#', "{\$awaysection}\n{\$playeroverview_ucp}");
-
-    //header
-    find_replace_templatesets('header', '#{\$menu_memberlist}#', "{\$menu_memberlist}\n						{\$playeroverview_menu}");
-
-
-    //apply patches
-    playeroverview_as_patches();
-
-}
-
-//DEACTIVATE
-function playeroverview_deactivate()
-{
-    global $db;
-    require MYBB_ROOT . "/inc/adminfunctions_templates.php";
-
-    //delete templates that are input when activated
-    //member_profile
-    find_replace_templatesets('member_profile', '#(\n*)(\s*){\$playeroverview_profile}(\n*)#', '', 0);
-    find_replace_templatesets('member_profile', '#{\$profilefields}#', "{\$profilefields}\n            {\$profile_attached}");//add {$profile_attached} back
-
-    //usercp_profile
-    find_replace_templatesets('usercp_profile', '#(\n*)(\t*){\$playeroverview_ucp}(\t*)(\n?)#', '', 0);
-
-    //header
-    find_replace_templatesets('header', '#(\n?)(\t*){\$playeroverview_menu}(\t*)(\n?)#', '', 0);
-
-    //delete patches
-    playeroverview_delete_patches();
 }
 
 //ADD CSS
@@ -579,8 +601,8 @@ function playeroverview_templates_add()
     );
     $db->insert_query('templates', $insert_array);
 
-      //playeroverview_playerbit_away
-      $template_playeroverview_playerbit_away = '<br />
+    //playeroverview_playerbit_away
+    $template_playeroverview_playerbit_away = '<br />
       <div><strong>{$lang->playeroverview_away_note}</strong></div>
       <em>{$lang->playeroverview_away_reason} {$awayreason}</em>
       <div class="smalltext">
@@ -588,15 +610,15 @@ function playeroverview_templates_add()
           {$lang->playeroverview_away_returns} {$returndate}
       </div>';
 
-      $insert_array = array(
-          'title' => 'playeroverview_playerbit_away',
-          'template' => $db->escape_string($template_playeroverview_playerbit_away),
-          'sid' => '-2',
-          'version' => '',
-          'dateline' => time()
-      );
-      $db->insert_query('templates', $insert_array);
-  
+    $insert_array = array(
+        'title' => 'playeroverview_playerbit_away',
+        'template' => $db->escape_string($template_playeroverview_playerbit_away),
+        'sid' => '-2',
+        'version' => '',
+        'dateline' => time()
+    );
+    $db->insert_query('templates', $insert_array);
+
 
     /************************** TEMPLATES FOR USER CP **************************/
 
@@ -815,7 +837,7 @@ function misc_playeroverview()
     $colspan = $playeroverview_avatar + $playeroverview_characters + 4;
 
     //templates
-    $playeroverview = $playeroverview_playerbit = $playeroverview_playerbit_avatar = $player_onlinestatus = $onlinestatus = $player_away =  "";
+    $playeroverview = $playeroverview_playerbit = $playeroverview_playerbit_avatar = $player_onlinestatus = $onlinestatus = $player_away = "";
     $playeroverview_playerbit_characters = $playeroverview_playerbit_characters_bit = $playeroverview_playerbit_characters_bit_avatar = "";
 
     //SETTINGS: show overview?
@@ -859,18 +881,18 @@ function misc_playeroverview()
                 $playertext = "{$lang->playeroverview_nodesc}";
             }
 
-            
+
             //show if user is away
             if ($playeroverview_show_away) {
-                
+
                 //get the away values 
                 $awayvalues = playeroverview_away($player);
                 $is_away = $awayvalues['is_away'];
 
                 //only show template if user is actually away
-                if($is_away) {
+                if ($is_away) {
                     debug_to_console("is away");
-                    if(empty($player['name'])) {
+                    if (empty($player['name'])) {
                         $lang->playeroverview_away_note = $lang->playeroverview_away_noname;
                     }
                     $lang->playeroverview_away_note = $lang->sprintf($lang->playeroverview_away_note, $player['name']);
@@ -882,7 +904,7 @@ function misc_playeroverview()
                 } else {
                     $player_away = "";
                 }
-                
+
             }
 
             //SETTINGS:  show avatar?
