@@ -808,56 +808,30 @@ function playeroverview_templates_add()
 }
 
 /************************ SHOW / EDIT CODE FOR USER CP, PROFILE, OVERVIEW LIST ************************/
-
 //show in overview list
 function misc_playeroverview()
 {
     global $db, $mybb, $templates, $theme, $headerinclude, $header, $lang, $footer;
-    global $playeroverview_characters_avatar_width, $playeroverview_characters_avatar_height;
-    global $playeroverview_playerbit_characters, $playeroverview_playerbit_characters_bit, $playeroverview_playerbit_characters_bit_avatar;
-    global $playeroverview, $playeroverview_playerbit, $playeroverview_playerbit_avatar, $player_onlinestatus, $onlinestatus, $player_away;
-
-    global $charaheader, $charaname, $charalink, $charaavatar, $colspan;
+    global $playeroverview_characters_bit, $characters_bit, $avatar_bit, $charaheader;
 
     if ($mybb->input['action'] == "playeroverview") {
 
         $lang->load("playeroverview");
 
-        // Sanitize and assign settings to global variables
-        global $playeroverview_activate, $playeroverview_activate_guest, $playeroverview_show_onlinestatus,
-        $playeroverview_show_away, $playeroverview_avatar, $playeroverview_avatar_default,
-        $playeroverview_avatar_width, $playeroverview_avatar_height, $playeroverview_characters,
-        $playeroverview_characters_avatar_default, $playeroverview_characters_avatar,
-        $playeroverview_characters_avatar_width, $playeroverview_characters_avatar_height;
+        $playeroverview_settings = get_playeroverview_settings();
 
-        $playeroverview_activate = intval($mybb->settings['playeroverview_activate']);
-        $playeroverview_activate_guest = intval($mybb->settings['playeroverview_activate_guest']);
-        $playeroverview_show_onlinestatus = intval($mybb->settings['playeroverview_onlinestatus']);
-        $playeroverview_show_away = intval($mybb->settings['playeroverview_away']);
-        $playeroverview_avatar = intval($mybb->settings['playeroverview_avatar']);
-        $playeroverview_avatar_default = htmlspecialchars_uni($mybb->settings['playeroverview_avatar_default']);
-        $playeroverview_avatar_width = intval($mybb->settings['playeroverview_avatar_width']);
-        $playeroverview_avatar_height = intval($mybb->settings['playeroverview_avatar_height']);
-        $playeroverview_characters = intval($mybb->settings['playeroverview_characters']);
-        $playeroverview_characters_avatar_default = htmlspecialchars_uni($mybb->settings['playeroverview_characters_avatar_default']);
-        $playeroverview_characters_avatar = intval($mybb->settings['playeroverview_characters_avatar']);
-        $playeroverview_characters_avatar_width = intval($mybb->settings['playeroverview_characters_avatar_width']);
-        $playeroverview_characters_avatar_height = intval($mybb->settings['playeroverview_characters_avatar_height']);
-
-        $colspan = $playeroverview_avatar + $playeroverview_characters + 4;
-
-        //templates
-        $playeroverview = $playeroverview_playerbit = $playeroverview_playerbit_avatar = $player_onlinestatus = $onlinestatus = $player_away = "";
-        $playeroverview_playerbit_characters = $playeroverview_playerbit_characters_bit = $playeroverview_playerbit_characters_bit_avatar = "";
+        $colspan = $playeroverview_settings['avatar'] + $playeroverview_settings['characters'] + 4;
 
         //SETTINGS: show overview?
-        if ($playeroverview_activate == 1) {
+        if ($playeroverview_settings['activate'] == 1) {
 
             // NAVIGATION
             add_breadcrumb($lang->playeroverview_title, "misc.php?action=playeroverview");
 
+            $playeroverview_playerbit = "";
+
             //SETTINGS: show overview for guests?
-            if ($playeroverview_activate_guest != 1) {
+            if ($playeroverview_settings['activate_guest'] != 1) {
                 error_no_permission();
             }
 
@@ -872,55 +846,31 @@ function misc_playeroverview()
                 //variables
                 $altbg = alt_trow();
 
-                $avaheader = $lastactive = $regdate = $playername = $playeravatar = $playertext = $pid = $lastactive_date = $regdate_date = $playeravalink = $player_away = "";
-                $charaheader = $charaname = $charaavatar = $charalink = "";
+                $player_away = $playeroverview_playerbit_avatar = $player_onlinestatus = "";
 
                 //PLAYER INFO - name, text, avatar
-                $playername = htmlspecialchars_uni($player['name']);
-                $pid = (int) $player['pid'];
-
-                if (empty($playername)) {
-                    $playername = htmlspecialchars_uni($lang->playeroverview_noname);
-                }
-
-                $playertext = htmlspecialchars_uni($player['desc']);
-
-                if (empty($playertext)) {
-                    $playertext = htmlspecialchars_uni($lang->playeroverview_nodesc);
-                }
-
+                // Sanitize player name and description
+                $playername = htmlspecialchars_uni($player['name'] ?? $lang->playeroverview_noname);
+                $playertext = htmlspecialchars_uni($player['desc'] ?? $lang->playeroverview_nodesc);
 
                 //show if user is away
-                if ($playeroverview_show_away) {
+                if ($playeroverview_settings['show_away']) {
+                    $away = playeroverview_away($player);
 
-                    //get the away values
-                    $awayvalues = playeroverview_away($player);
-                    $is_away = $awayvalues['is_away'];
-
-                    //only show template if user is actually away
-                    if ($is_away) {
-                        if (empty($player['name'])) {
-                            $lang->playeroverview_away_note = $lang->playeroverview_away_noname;
-                        }
-                        $lang->playeroverview_away_note = $lang->sprintf($lang->playeroverview_away_note, $player['name']);
-                        $awaydate = $awayvalues['awaydate'];
-                        $awayreason = $awayvalues['awayreason'];
-                        $returndate = $awayvalues['returndate'];
+                    if ($away['is_away']) {
+                        $lang->playeroverview_away_note = empty($player['name']) ? $lang->playeroverview_away_noname : $lang->sprintf($lang->playeroverview_away_note, $player['name']);
+                        $awaydate = $away['awaydate'];
+                        $awayreason = $away['awayreason'];
+                        $returndate = $away['returndate'];
 
                         eval ("\$player_away = \"" . $templates->get("playeroverview_playerbit_away") . "\";");
-                    } else {
-                        $player_away = "";
                     }
-
                 }
 
-                //SETTINGS:  show avatar?
-                if ($playeroverview_avatar != 1) {
-                    //don't show avatar
-                    $playeroverview_playerbit_avatar = "";
-
-                } elseif ($playeroverview_avatar == 1) {
+                //SETTINGS: show avatar?
+                if ($playeroverview_settings['avatar'] == 1) {
                     //show avatar of player
+
                     $playeravavalues = playeroverview_set_playeravatar($player);
 
                     $avaheader = $playeravavalues['avaheader'];
@@ -929,33 +879,22 @@ function misc_playeroverview()
                     $playeravalink = $playeravavalues['playeravalink'];
 
                     eval ("\$playeroverview_playerbit_avatar = \"" . $templates->get("playeroverview_playerbit_avatar") . "\";");
-
                 }
 
-                //SETTINGS: show characters?
-                if ($playeroverview_characters == 1) {
-                    //show player characters
-                    playeroverview_show_characters("misc", $pid, $altbg);
-                } else {
-                    //don't show characters
-                    $playeroverview_playerbit_characters = "";
-                }
+                // Show characters if enabled
+                $playeroverview_profile_characters = ($playeroverview_settings['characters'] == 1) ? playeroverview_show_characters("misc", (int) $player['pid'], $altbg) : "";
 
                 //show online status
-                if ($playeroverview_show_onlinestatus) {
+                if ($playeroverview_settings['show_onlinestatus']) {
                     $onlinestatus = playeroverview_onlinestatus($player);
                     eval ("\$player_onlinestatus = \"" . $templates->get("playeroverview_playerbit_onlinestatus") . "\";");
                 }
 
+                // Get additional player info based on characters
+                $additional_info = get_additional_player_info((int) $player['pid']);
 
-                //MORE PLAYER INFO BASED ON CHARACTERS - latest visit, earliest reg date
-                $lastactive = $db->simple_select('users', 'MAX(lastactive) AS max_lastactive', "as_playerid = '$pid'");
-                $lastactive_result = $db->fetch_field($lastactive, 'max_lastactive');
-                $lastactive_date = my_date('relative', (int) $lastactive_result);
-
-                $regdate = $db->simple_select('users', 'MIN(regdate) AS min_regdate', "as_playerid = '$pid'");
-                $regdate_result = $db->fetch_field($regdate, 'min_regdate');
-                $regdate_date = my_date('relative', (int) $regdate_result);
+                $lastactive_date = $additional_info['lastactive_date'];
+                $regdate_date = $additional_info['regdate_date'];
 
                 eval ("\$playeroverview_playerbit .= \"" . $templates->get("playeroverview_playerbit") . "\";");
             }
@@ -972,205 +911,90 @@ function misc_playeroverview()
 //show in profile
 function playeroverview_show_profile()
 {
-    global $db, $mybb, $templates, $theme, $headerinclude, $header, $lang, $footer;
-    global $playeroverview_profile, $playeroverview_profile_avatar, $playeroverview_profile_characters, $playeroverview_profile_characters_bit, $playeroverview_profile_characters_bit_avatar;
-    global $playername, $playertext, $playeravatar, $avaheader, $regdate_date, $lastactive_date, $playeravatar_image_html;
-
-    global $charaheader, $charaname, $charalink, $charaavatar;
+    global $mybb, $templates, $lang, $theme;
+    global $playeroverview_profile, $playeroverview_profile_avatar;
+    global $playeroverview_characters_bit, $characters_bit, $avatar_bit;
 
     $lang->load("playeroverview");
-    // Sanitize and assign settings to global variables
-    global $playeroverview_activate, $playeroverview_activate_guest, $playeroverview_show_onlinestatus,
-    $playeroverview_show_away, $playeroverview_avatar, $playeroverview_avatar_default,
-    $playeroverview_avatar_width, $playeroverview_avatar_height, $playeroverview_characters,
-    $playeroverview_characters_avatar_default, $playeroverview_characters_avatar,
-    $playeroverview_characters_avatar_width, $playeroverview_characters_avatar_height;
 
-    //SETTINGS
-    $playeroverview_activate = intval($mybb->settings['playeroverview_activate']);
-    $playeroverview_activate_guest = intval($mybb->settings['playeroverview_activate_guest']);
-    $playeroverview_show_onlinestatus = intval($mybb->settings['playeroverview_onlinestatus']);
-    $playeroverview_show_away = intval($mybb->settings['playeroverview_away']);
-    $playeroverview_avatar = intval($mybb->settings['playeroverview_avatar']);
-    $playeroverview_avatar_default = htmlspecialchars_uni($mybb->settings['playeroverview_avatar_default']);
-    $playeroverview_avatar_width = intval($mybb->settings['playeroverview_avatar_width']);
-    $playeroverview_avatar_height = intval($mybb->settings['playeroverview_avatar_height']);
-    $playeroverview_characters = intval($mybb->settings['playeroverview_characters']);
-    $playeroverview_characters_avatar_default = htmlspecialchars_uni($mybb->settings['playeroverview_characters_avatar_default']);
-    $playeroverview_characters_avatar = intval($mybb->settings['playeroverview_characters_avatar']);
-    $playeroverview_characters_avatar_width = intval($mybb->settings['playeroverview_characters_avatar_width']);
-    $playeroverview_characters_avatar_height = intval($mybb->settings['playeroverview_characters_avatar_height']);
+    $playeroverview_settings = get_playeroverview_settings();
 
-    //templates
-    $playeroverview_profile = $playeroverview_profile_avatar = $playeroverview_profile_characters = $playeroverview_profile_characters_bit = $playeroverview_profile_characters_bit_avatar = "";
+    // Variables initialization
+    $playeroverview_profile_avatar = $playeroverview_profile = "";
 
-    //variables
-    $playername = $playertext = $playeravatar = $avaheader = $regdate_date = $lastactive_date = $playeravalink = "";
-
-    // user id from uri: "uid=1" for example
     $user_uid = $mybb->get_input('uid', MyBB::INPUT_INT);
 
-    //SETTINGS: show overview?
-    if ($playeroverview_activate != 1) {
+    if ($playeroverview_settings['activate'] == 1) {
+        // Get player data
+        $player = get_player_data($user_uid);
+        $user_player = $player['pid'];
 
-        $playeroverview_profile = $playeroverview_profile_avatar = $playeroverview_profile_characters = $playeroverview_profile_characters_bit = $playeroverview_profile_characters_bit_avatar = "";
-        $playername = $playertext = $playeravatar = $avaheader = $playeravatar_image_html = "";
-
-    } elseif ($playeroverview_activate == 1) {
-
-        //get as_playerid of deleted user
-        $query = $db->simple_select('users', 'as_playerid', "uid= '$user_uid'");
-        $user_player = $db->fetch_field($query, 'as_playerid');
-
-        $query = $db->simple_select("players", "*", "pid='$user_player'");
-        $player = $db->fetch_array($query);
-
-        $playername = htmlspecialchars_uni($player['name']);
-        $playertext = htmlspecialchars_uni($player['desc']);
-
-        if (empty($playername)) {
-            $playername = htmlspecialchars_uni($lang->playeroverview_noname);
-        }
-
-        if (empty($playertext)) {
-            $playertext = htmlspecialchars_uni($lang->playeroverview_nodesc);
-        }
+        // Sanitize player name and description
+        $playername = htmlspecialchars_uni($player['name'] ?? $lang->playeroverview_noname);
+        $playertext = htmlspecialchars_uni($player['desc'] ?? $lang->playeroverview_nodesc);
 
         //SETTINGS: show avatar?
-        if ($playeroverview_avatar != 1) {
-            //don't show avatar
-            $playeroverview_profile_avatar = "";
+        if ($playeroverview_settings['avatar'] == 1) {
 
-        } elseif ($playeroverview_avatar == 1) {
             //show avatar of player
-
             $playeravavalues = playeroverview_set_playeravatar($player);
-
-            $avaheader = $playeravavalues['avaheader'];
-            $playeravatar = $playeravavalues['playeravatar'];
             $playeravatar_image_html = $playeravavalues['playeravatar_image_html'];
-            $playeravalink = $playeravavalues['playeravalink'];
-
             eval ("\$playeroverview_profile_avatar = \"" . $templates->get("playeroverview_profile_avatar") . "\";");
 
         }
 
-        //SETTINGS: show characters?
-        if ($playeroverview_characters == 1) {
-            //show player characters
-            playeroverview_show_characters("profile", $user_player, 0);
-        } else {
-            //don't show characters
-            $playeroverview_profile_characters = "";
-        }
+        // Show characters if enabled
+        $playeroverview_profile_characters = ($playeroverview_settings['characters'] == 1) ? playeroverview_show_characters("profile", $user_player, 0) : "";
 
-        //MORE PLAYER INFO BASED ON CHARACTERS - latest visit, earliest reg date
-        $lastactive = $db->simple_select('users', 'MAX(lastactive) AS max_lastactive', "as_playerid = '$user_player'");
-        $lastactive_result = $db->fetch_field($lastactive, 'max_lastactive');
-        $lastactive_date = my_date('relative', (int) $lastactive_result);
+        // Get additional player info based on characters
+        $additional_info = get_additional_player_info($user_player);
+        $lastactive_date = $additional_info['lastactive_date'];
+        $regdate_date = $additional_info['regdate_date'];
 
-        $regdate = $db->simple_select('users', 'MIN(regdate) AS min_regdate', "as_playerid = '$user_player'");
-        $regdate_result = $db->fetch_field($regdate, 'min_regdate');
-        $regdate_date = my_date('relative', (int) $regdate_result);
-
-        //user is guest
-        if ($mybb->user['uid'] == 0) {
-
-            //can be viewed by guest
-            if ($playeroverview_activate_guest == 1) {
-                $playeroverview_profile = eval ($templates->render('playeroverview_profile'));
-            } else {
-                $playeroverview_profile = "";
-            }
-
-        } else {
-            $playeroverview_profile = eval ($templates->render('playeroverview_profile'));
-        }
+        // Check if user is guest
+        $playeroverview_profile = ($mybb->user['uid'] == 0 && $playeroverview_settings['activate_guest'] != 1) ? "" : eval ($templates->render("playeroverview_profile"));
 
     }
-
 }
 
 //show in usercp
 function playeroverview_show_usercp()
 {
-    global $db, $mybb, $templates, $lang, $theme, $errors;
-    global $playeroverview_ucp, $playeroverview_ucp_avatar, $playername, $playertext, $playeravatar, $avaheader, $player_id, $profile_avatar_text;
-    global $playeravatar_image_html;
+    global $playeroverview_ucp, $playeroverview_ucp_avatar;
+    global $mybb, $templates, $lang;
 
     $lang->load("playeroverview");
-    // Sanitize and assign settings to global variables
-    global $playeroverview_activate, $playeroverview_activate_guest, $playeroverview_show_onlinestatus,
-    $playeroverview_show_away, $playeroverview_avatar, $playeroverview_avatar_default,
-    $playeroverview_avatar_width, $playeroverview_avatar_height, $playeroverview_characters,
-    $playeroverview_characters_avatar_default, $playeroverview_characters_avatar,
-    $playeroverview_characters_avatar_width, $playeroverview_characters_avatar_height;
 
-    //SETTINGS
-    $playeroverview_activate = intval($mybb->settings['playeroverview_activate']);
-    $playeroverview_activate_guest = intval($mybb->settings['playeroverview_activate_guest']);
-    $playeroverview_show_onlinestatus = intval($mybb->settings['playeroverview_onlinestatus']);
-    $playeroverview_show_away = intval($mybb->settings['playeroverview_away']);
-    $playeroverview_avatar = intval($mybb->settings['playeroverview_avatar']);
-    $playeroverview_avatar_default = htmlspecialchars_uni($mybb->settings['playeroverview_avatar_default']);
-    $playeroverview_avatar_width = intval($mybb->settings['playeroverview_avatar_width']);
-    $playeroverview_avatar_height = intval($mybb->settings['playeroverview_avatar_height']);
-    $playeroverview_characters = intval($mybb->settings['playeroverview_characters']);
-    $playeroverview_characters_avatar_default = htmlspecialchars_uni($mybb->settings['playeroverview_characters_avatar_default']);
-    $playeroverview_characters_avatar = intval($mybb->settings['playeroverview_characters_avatar']);
-    $playeroverview_characters_avatar_width = intval($mybb->settings['playeroverview_characters_avatar_width']);
-    $playeroverview_characters_avatar_height = intval($mybb->settings['playeroverview_characters_avatar_height']);
+    // Fetch player overview settings
+    $playeroverview_settings = get_playeroverview_settings();
 
-    //templates
+    //declare avatar field description text
+    $profile_avatar_text = $lang->sprintf($lang->playeroverview_ava_info, $playeroverview_settings['avatar_width'], $playeroverview_settings['avatar_height']);
+
+    //Initialize variables
     $playeroverview_ucp = $playeroverview_ucp_avatar = "";
 
-    //variables
-    $playername = $playertext = $playeravatar = $avaheader = $player_id = $playeravalink = "";
+    // If player overview is activated
+    if ($playeroverview_settings['activate'] == 1) {
+        // Get player data
+        $player = get_player_data($mybb->user['uid']);
+        $user_player = $player['pid'];
 
-    $profile_avatar_text = $lang->sprintf($lang->playeroverview_ava_info, $playeroverview_avatar_width, $playeroverview_avatar_height);
-
-    //SETTINGS: show overview?
-    if ($playeroverview_activate != 1) {
-
-        $playeroverview_ucp = $playeroverview_ucp_avatar = "";
-        $playername = $playertext = $playeravatar = $avaheader = $player_id = $playeravalink = $playeravatar_image_html = "";
-
-    } elseif ($playeroverview_activate == 1) {
-
-        //get player info of current user
-        $user_player = $mybb->user['as_playerid'];
-        $user_uid = $mybb->user['uid'];
-
-        $query = $db->simple_select("players", "*", "pid='$user_player'");
-        $player = $db->fetch_array($query);
-
+        // Initialize variables
         $playername = htmlspecialchars_uni($player['name']);
         $playertext = htmlspecialchars_uni($player['desc']);
-        $playeravalink = "";
 
-        //SETTINGS:  show avatar?
-        if ($playeroverview_avatar != 1) {
-            //don't show avatar
-            $playeroverview_ucp_avatar = "";
-
-        } elseif ($playeroverview_avatar == 1) {
-            //show avatar of player
-
+        // If avatar is enabled, set the avatar HTML
+        if ($playeroverview_settings['avatar'] == 1) {
             $playeravavalues = playeroverview_set_playeravatar($player);
-
-            $avaheader = $playeravavalues['avaheader'];
-            $playeravatar = $playeravavalues['playeravatar'];
-            $playeravatar_image_html = $playeravavalues['playeravatar_image_html'];
-            $playeravalink = $playeravavalues['playeravalink'];
-
             eval ("\$playeroverview_ucp_avatar = \"" . $templates->get("playeroverview_ucp_avatar") . "\";");
         }
 
+        // Render the user control panel template
         $playeroverview_ucp = eval ($templates->render('playeroverview_ucp'));
-
     }
-
 }
+
 
 //edit in usercp
 function playeroverview_edit_usercp()
@@ -1657,13 +1481,9 @@ function playeroverview_onlinestatus($player)
 //show away in overview
 function playeroverview_away($player)
 {
-
     global $db, $mybb, $lang;
-    require_once "./global.php";
-    require_once MYBB_ROOT . "inc/functions_post.php";
-    require_once MYBB_ROOT . "inc/functions_user.php";
+
     require_once MYBB_ROOT . "inc/class_parser.php";
-    require_once MYBB_ROOT . "inc/functions_modcp.php";
     $parser = new postParser;
 
     $playerid = $player['pid'];
@@ -1674,35 +1494,21 @@ function playeroverview_away($player)
     $query = $db->simple_select("users", "*", "as_playerid='$playerid'");
 
     while ($user = $db->fetch_array($query)) {
-
         if ($user['away'] == 1 && $mybb->settings['allowaway'] != 0) {
             $is_away = true;
             $awaydate = my_date($mybb->settings['dateformat'], $user['awaydate']);
             if (!empty($user['awayreason'])) {
-                $reason = $parser->parse_badwords($user['awayreason']);
-                $awayreason = htmlspecialchars_uni($reason);
+                $awayreason = htmlspecialchars_uni($parser->parse_badwords($user['awayreason']));
             } else {
                 $awayreason = $lang->playeroverview_away_no_reason;
             }
-            if ($user['returndate'] == '') {
+            if (empty($user['returndate'])) {
                 $returndate = $lang->playeroverview_away_unknown;
             } else {
-                $returnhome = explode("-", $user['returndate']);
-
-                // PHP native date functions use integers so timestamps for years after 2038 will not work
-                // Thus we use adodb_mktime
-                if ($returnhome[2] >= 2038) {
-                    require_once MYBB_ROOT . "inc/functions_time.php";
-                    $returnmkdate = adodb_mktime(0, 0, 0, $returnhome[1], $returnhome[0], $returnhome[2]);
-                    $returndate = my_date($mybb->settings['dateformat'], $returnmkdate, "", 1, true);
-                } else {
-                    $returnmkdate = mktime(0, 0, 0, $returnhome[1], $returnhome[0], $returnhome[2]);
-                    $returndate = my_date($mybb->settings['dateformat'], $returnmkdate);
-                }
-
+                $returnmkdate = strtotime($user['returndate']);
+                $returndate = my_date($mybb->settings['dateformat'], $returnmkdate);
             }
         }
-
     }
 
     $awayvalues = array(
@@ -1713,18 +1519,16 @@ function playeroverview_away($player)
     );
 
     return $awayvalues;
-
 }
 
 
 //GET AND EVAL CHARACTERS THAT A USER PLAYS
 function playeroverview_show_characters($template, $user_playerid, $altbg)
 {
-
     global $db, $mybb, $templates, $lang;
+
     global $playeroverview_characters_avatar_width, $playeroverview_characters_avatar_height;
-    global $playeroverview_profile_characters_bit, $playeroverview_playerbit_characters_bit, $playeroverview_profile_characters_bit_avatar, $playeroverview_playerbit_characters_bit_avatar;
-    global $playeroverview_profile_characters, $playeroverview_playerbit_characters;
+    global $playeroverview_characters_bit, $characters_bit, $avatar_bit;
     global $charaheader, $charaname, $charalink, $charaavatar;
 
     $lang->load("playeroverview");
@@ -1745,7 +1549,7 @@ function playeroverview_show_characters($template, $user_playerid, $altbg)
                 ORDER BY u.username ASC
             ");
 
-    $playeroverview_profile_characters_bit = $playeroverview_playerbit_characters_bit = $playeroverview_profile_characters = $playeroverview_playerbit_characters = "";
+    $playeroverview_characters_bit = $characters_bit = $avatar_bit = "";
 
     while ($character = $db->fetch_array($characters)) {
         //ensure correct username link
@@ -1754,41 +1558,75 @@ function playeroverview_show_characters($template, $user_playerid, $altbg)
         $charaavatar = "";
 
         //SETTINGS: character avatars only if setting allows
-        if ($playeroverview_characters_avatar != 1) {
-            //don't show avatar of character
-            $playeroverview_profile_characters_bit_avatar = $playeroverview_playerbit_characters_bit_avatar = "";
-        } elseif ($playeroverview_characters_avatar == 1) {
+        if ($playeroverview_characters_avatar == 1) {
             $charaavatar = playeroverview_set_charaavatar($character);
             if (!empty($charaavatar)) {
-                if ($template == "profile") {
-                    eval ("\$playeroverview_profile_characters_bit_avatar = \"" . $templates->get("playeroverview_profile_characters_bit_avatar") . "\";");
-                } elseif ($template == "misc") {
-                    eval ("\$playeroverview_playerbit_characters_bit_avatar = \"" . $templates->get("playeroverview_playerbit_characters_bit_avatar") . "\";");
-                }
-
-            } else {
-                $playeroverview_profile_characters_bit_avatar = $playeroverview_playerbit_characters_bit_avatar = "";
+                $avatar_template = ($template == "profile") ? "playeroverview_profile_characters_bit_avatar" : "playeroverview_playerbit_characters_bit_avatar";
+                eval ("\$avatar_bit = \"" . $templates->get($avatar_template) . "\";");
             }
-
         }
 
-        if ($template == "profile") {
-            eval ("\$playeroverview_profile_characters_bit .= \"" . $templates->get("playeroverview_profile_characters_bit") . "\";");
-        } elseif ($template == "misc") {
-            eval ("\$playeroverview_playerbit_characters_bit .= \"" . $templates->get("playeroverview_playerbit_characters_bit") . "\";");
-        }
-
+        $bit_template = ($template == "profile") ? "playeroverview_profile_characters_bit" : "playeroverview_playerbit_characters_bit";
+        eval ("\$characters_bit .= \"" . $templates->get($bit_template) . "\";");
     }
 
-    eval ("\$playeroverview_playerbit_characters = \"" . $templates->get("playeroverview_playerbit_characters") . "\";");
-
-    if ($template == "profile") {
-        eval ("\$playeroverview_profile_characters = \"" . $templates->get("playeroverview_profile_characters") . "\";");
-    } elseif ($template == "misc") {
-        eval ("\$playeroverview_playerbit_characters = \"" . $templates->get("playeroverview_playerbit_characters") . "\";");
-    }
-
+    $list_template = ($template == "profile") ? "playeroverview_profile_characters" : "playeroverview_playerbit_characters";
+    eval ("\$playeroverview_characters_bit = \"" . $templates->get($list_template) . "\";");
 }
+
+
+// Helper functions to refactor repetitive tasks
+function get_player_data($user_uid)
+{
+    global $db;
+
+    $user_player = $db->fetch_field($db->simple_select('users', 'as_playerid', "uid= '$user_uid'"), 'as_playerid');
+
+    return $db->fetch_array($db->simple_select("players", "*", "pid='$user_player'"));
+}
+
+function get_additional_player_info($player_id)
+{
+    global $db;
+
+    //MORE PLAYER INFO BASED ON CHARACTERS - latest visit, earliest reg date
+    // Query to get both last active date and registration date
+    $query = $db->simple_select('users', 'MAX(lastactive) AS max_lastactive, MIN(regdate) AS min_regdate', "as_playerid = '$player_id'");
+    $result = $db->fetch_array($query);
+
+    // Extract last active date and registration date from the result
+    $lastactive_date = my_date('relative', (int) $result['max_lastactive']);
+    $regdate_date = my_date('relative', (int) $result['min_regdate']);
+
+    return array('lastactive_date' => $lastactive_date, 'regdate_date' => $regdate_date);
+}
+
+
+// Helper function to get player overview settings
+function get_playeroverview_settings()
+{
+    global $mybb;
+
+    // Get settings
+    $playeroverview_settings = array(
+        'activate' => intval($mybb->settings['playeroverview_activate']),
+        'activate_guest' => intval($mybb->settings['playeroverview_activate_guest']),
+        'show_onlinestatus' => intval($mybb->settings['playeroverview_onlinestatus']),
+        'show_away' => intval($mybb->settings['playeroverview_away']),
+        'avatar' => intval($mybb->settings['playeroverview_avatar']),
+        'avatar_default' => htmlspecialchars_uni($mybb->settings['playeroverview_avatar_default']),
+        'avatar_width' => intval($mybb->settings['playeroverview_avatar_width']),
+        'avatar_height' => intval($mybb->settings['playeroverview_avatar_height']),
+        'characters' => intval($mybb->settings['playeroverview_characters']),
+        'characters_avatar_default' => htmlspecialchars_uni($mybb->settings['playeroverview_characters_avatar_default']),
+        'characters_avatar' => intval($mybb->settings['playeroverview_characters_avatar']),
+        'characters_avatar_width' => intval($mybb->settings['playeroverview_characters_avatar_width']),
+        'characters_avatar_height' => intval($mybb->settings['playeroverview_characters_avatar_height'])
+    );
+
+    return $playeroverview_settings;
+}
+
 
 /************************ PATCHES SETUP ************************/
 
