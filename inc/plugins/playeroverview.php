@@ -1706,7 +1706,7 @@ function playeroverview_as_patches()
 
     \$plugins->run_hooks('as_usercp_attachuser', \$arguments);";
 
-    playeroverview_edit_patches($ptitle1, $pdescription1, $psearch1, $pbefore1);
+    playeroverview_edit_patches($ptitle1, $pdescription1, $psearch1, $pbefore1, "", "");
 
     //patch 2
     $ptitle2 = "Playeroverview edit for accountswitcher: detach this user from master";
@@ -1714,7 +1714,7 @@ function playeroverview_as_patches()
     $psearch2 = "redirect(\"usercp.php\", \$lang->aj_detach_success);";
     $pbefore2 = "\$plugins->run_hooks('as_usercp_detachuser');";
 
-    playeroverview_edit_patches($ptitle2, $pdescription2, $psearch2, $pbefore2);
+    playeroverview_edit_patches($ptitle2, $pdescription2, $psearch2, $pbefore2, "", "");
 
     //patch 3
     $ptitle3 = "Playeroverview edit for accountswitcher: Attach to this";
@@ -1726,7 +1726,7 @@ function playeroverview_as_patches()
 
     \$plugins->run_hooks('as_usercp_attachother', \$arguments);";
 
-    playeroverview_edit_patches($ptitle3, $pdescription3, $psearch3, $pbefore3);
+    playeroverview_edit_patches($ptitle3, $pdescription3, $psearch3, $pbefore3, "", "");
 
     //patch 4
     $ptitle4 = "Playeroverview edit for accountswitcher: detach another user from master";
@@ -1738,7 +1738,16 @@ function playeroverview_as_patches()
 
     \$plugins->run_hooks('as_usercp_detachother', \$arguments);";
 
-    playeroverview_edit_patches($ptitle4, $pdescription4, $psearch4, $pbefore4);
+    playeroverview_edit_patches($ptitle4, $pdescription4, $psearch4, $pbefore4, "", "");
+
+    //patch 5: global $plugins
+    $ptitle5 = "Playeroverview edit for accountswitcher: global \$plugin";
+    $pdescription5 = "global \$plugin needed so that the patches work";
+    $psearch5 = "\$user_sec_reason;";
+    $pafter5 = "global \$plugins;";
+
+    playeroverview_edit_patches($ptitle5, $pdescription5, $psearch5, "", $pafter5, "");
+
 
     //apply
     $revert = false;
@@ -1746,7 +1755,7 @@ function playeroverview_as_patches()
 }
 
 //insert patches into the patches overview list
-function playeroverview_edit_patches($ptitle, $pdescription, $psearch, $pbefore)
+function playeroverview_edit_patches($ptitle, $pdescription, $psearch, $pbefore, $pafter, $preplace)
 {
 
     global $db, $PL, $lang;
@@ -1763,8 +1772,7 @@ function playeroverview_edit_patches($ptitle, $pdescription, $psearch, $pbefore)
 
     $search = implode("\n", $search);
 
-    $pafter = "";
-    $preplace = $pmulti = $pnone = '0';
+    $pmulti = $pnone = '0';
 
     //psize 1: active
     //pside 0: not active
