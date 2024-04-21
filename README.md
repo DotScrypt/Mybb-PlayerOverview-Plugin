@@ -99,16 +99,13 @@ Alle neuen Templates sind in der Template-Gruppe "Player Overview Templates" zu 
 - {$playeroverview_ucp} eingefügt
 
 ### - header - 
-- {$player_text}
-
-### - memberlist_user - 
 - {$playeroverview_menu}
 
-### - postbit - 
-- {$post['player']
+### - memberlist_user - 
+- {$player_text}
 
-### - postbit_classic -
-- {$post['player']
+### - postbit / postbit_classic - 
+- {$post['player']} Fügt einen "Gespielt von: [Spielername]" Text ein
 
 # Neue CSS
 - playeroverview.css
