@@ -480,6 +480,8 @@ function playeroverview_templates_add()
 
     global $db, $lang;
 
+    $lang->load("playeroverview");
+
     // Define the template group properties
     $template_group = array(
         'prefix' => 'playeroverview', // The prefix for your templates
